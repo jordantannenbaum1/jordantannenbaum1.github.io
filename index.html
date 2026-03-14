@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jordan — Data Projects</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c10; --bg2: #0f1218; --surface: #1a1f2e; --surface2: #1e2535;
+    --border: rgba(255,255,255,0.07); --border2: rgba(255,255,255,0.12);
+    --text: #e8eaf0; --muted: #8892a4; --dim: #4a5568;
+    --cyan: #00d4ff; --pink: #ff4d9d; --yellow: #ffd166;
+    --green: #06d6a0; --purple: #a78bfa; --orange: #ff8c42;
+    --mono: 'JetBrains Mono', monospace;
+    --serif: 'DM Serif Display', serif;
+    --sans: 'DM Sans', sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16px;line-height:1.75;overflow-x:hidden;min-height:100vh}
+  body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.025) 2px,rgba(0,0,0,0.025) 4px);pointer-events:none;z-index:9999}
+
+  /* NAV */
+  nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,12,16,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 3rem;height:52px;display:flex;align-items:center;justify-content:space-between}
+  .nav-logo{font-family:var(--mono);font-size:12px;color:var(--cyan);letter-spacing:.14em;text-decoration:none;text-transform:uppercase}
+  .nav-right{display:flex;align-items:center;gap:2rem}
+  .nav-right a{font-family:var(--mono);font-size:11px;color:var(--muted);text-decoration:none;letter-spacing:.08em;text-transform:uppercase;transition:color .2s}
+  .nav-right a:hover{color:var(--cyan)}
+
+  /* HERO */
+  .hero{min-height:100vh;display:flex;align-items:center;padding:100px 3rem 5rem;position:relative;overflow:hidden}
+  .hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,212,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.03) 1px,transparent 1px);background-size:64px 64px;mask-image:radial-gradient(ellipse 70% 80% at 30% 50%,black 30%,transparent 80%)}
+  .hero-glow{position:absolute;top:30%;left:5%;width:500px;height:500px;background:radial-gradient(ellipse,rgba(0,212,255,.04) 0%,transparent 70%);pointer-events:none}
+  .hero-content{max-width:760px;position:relative;z-index:1}
+  .hero-eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--cyan);margin-bottom:2rem;display:flex;align-items:center;gap:.875rem}
+  .hero-eyebrow::before{content:'';display:block;width:28px;height:1px;background:var(--cyan)}
+  h1{font-family:var(--serif);font-size:clamp(3rem,6vw,5.5rem);line-height:1.05;font-weight:400;margin-bottom:1.75rem}
+  h1 .line2{color:var(--muted);font-style:italic}
+  .hero-bio{font-size:1.1rem;color:var(--muted);max-width:540px;margin-bottom:2.5rem;line-height:1.8}
+  .hero-bio strong{color:var(--text);font-weight:500}
+  .hero-tags{display:flex;flex-wrap:wrap;gap:.625rem;margin-bottom:3rem}
+  .tag{font-family:var(--mono);font-size:10px;padding:4px 10px;border:1px solid var(--border2);border-radius:4px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+  .tag-hi{border-color:rgba(0,212,255,.3);color:var(--cyan);background:rgba(0,212,255,.05)}
+  .hero-stat-row{display:flex;gap:3rem}
+  .hero-stat-num{font-family:var(--mono);font-size:1.6rem;font-weight:700;line-height:1}
+  .hero-stat-label{font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:.08em;margin-top:.25rem}
+
+  /* PROJECTS SECTION */
+  .projects{padding:5rem 3rem 6rem}
+  .projects-header{max-width:1100px;margin:0 auto 3rem;display:flex;align-items:baseline;justify-content:space-between}
+  .section-label{font-family:var(--mono);font-size:10px;letter-spacing:.25em;text-transform:uppercase;color:var(--dim)}
+  .section-count{font-family:var(--mono);font-size:11px;color:var(--dim)}
+  .projects-grid{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:1.25rem}
+
+  /* PROJECT CARD */
+  .project-card{border:1px solid var(--border);border-radius:14px;overflow:hidden;background:var(--bg2);transition:border-color .2s,transform .2s;text-decoration:none;display:flex;flex-direction:column;cursor:pointer;position:relative}
+  .project-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+  .project-card.coming-soon{opacity:.5;cursor:default}
+  .project-card.coming-soon:hover{transform:none;border-color:var(--border)}
+
+  .card-accent{height:3px;width:100%}
+  .card-body{padding:1.75rem;flex:1;display:flex;flex-direction:column}
+  .card-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem}
+  .card-num{font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:.1em}
+  .card-status{font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:3px}
+  .status-live{background:rgba(6,214,160,.1);color:var(--green);border:1px solid rgba(6,214,160,.2)}
+  .status-soon{background:rgba(255,255,255,.04);color:var(--dim);border:1px solid var(--border)}
+  .card-title{font-family:var(--serif);font-size:1.5rem;font-weight:400;line-height:1.2;color:var(--text);margin-bottom:.875rem}
+  .card-desc{font-size:.9rem;color:var(--muted);line-height:1.65;flex:1;margin-bottom:1.5rem}
+  .card-tags{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1.5rem}
+  .card-tag{font-family:var(--mono);font-size:9px;padding:2px 7px;border-radius:3px;letter-spacing:.05em;text-transform:uppercase}
+  .card-footer{display:flex;align-items:center;justify-content:space-between;padding-top:1rem;border-top:1px solid var(--border)}
+  .card-stats{display:flex;gap:1.5rem}
+  .card-stat{font-family:var(--mono);font-size:10px;color:var(--dim)}
+  .card-stat span{color:var(--muted)}
+  .card-arrow{font-size:18px;color:var(--dim);transition:color .2s,transform .2s}
+  .project-card:hover .card-arrow{color:var(--cyan);transform:translateX(3px)}
+
+  /* ABOUT */
+  .about{padding:5rem 3rem;border-top:1px solid var(--border);background:var(--bg2)}
+  .about-inner{max-width:700px;margin:0 auto}
+  .about-inner h2{font-family:var(--serif);font-size:clamp(1.6rem,3vw,2.4rem);font-weight:400;margin-bottom:1.25rem}
+  .about-inner p{color:var(--muted);font-size:1rem;line-height:1.8;margin-bottom:1.1rem}
+  .about-inner p strong{color:var(--text);font-weight:500}
+  .about-links{display:flex;gap:1.25rem;margin-top:2rem;flex-wrap:wrap}
+  .about-link{font-family:var(--mono);font-size:11px;padding:7px 16px;border:1px solid var(--border2);border-radius:6px;color:var(--muted);text-decoration:none;letter-spacing:.06em;text-transform:uppercase;transition:border-color .2s,color .2s}
+  .about-link:hover{border-color:var(--cyan);color:var(--cyan)}
+
+  /* FOOTER */
+  footer{padding:2rem 3rem;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+  footer p{font-family:var(--mono);font-size:10px;color:var(--dim)}
+  footer a{color:var(--muted);text-decoration:none}
+  footer a:hover{color:var(--cyan)}
+
+  @media(max-width:768px){.hero,.projects,.about{padding-left:1.5rem;padding-right:1.5rem}nav{padding:0 1.5rem}.hero-stat-row{gap:2rem}.projects-grid{grid-template-columns:1fr}footer{flex-direction:column;gap:.5rem;text-align:center}}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="#">// jordan.data</a>
+  <div class="nav-right">
+    <a href="#projects">Projects</a>
+    <a href="#about">About</a>
+    <a href="https://github.com/[your-handle]/jordan-data-projects" target="_blank">GitHub</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">Data Portfolio</div>
+    <h1>Jordan<br><span class="line2">Head of Data</span></h1>
+    <p class="hero-bio">
+      I build data infrastructure and tell stories with data. Currently at <strong>NSLS</strong> — leading a team building on Snowflake, dbt Cloud, and Hex across 800+ university chapters. Previously <strong>GoodRx</strong> (~500TB scale).
+    </p>
+    <p class="hero-bio">
+      This portfolio is where I publish personal data work: things I find interesting, important, or underexplored. Every project shows the full pipeline — sources, cleaning, transformation, visualization.
+    </p>
+    <div class="hero-tags">
+      <span class="tag tag-hi">Snowflake</span>
+      <span class="tag tag-hi">dbt</span>
+      <span class="tag tag-hi">D3.js</span>
+      <span class="tag">Python</span>
+      <span class="tag">SQL</span>
+      <span class="tag">Hex</span>
+      <span class="tag">Data storytelling</span>
+      <span class="tag">Infrastructure</span>
+    </div>
+    <div class="hero-stat-row">
+      <div>
+        <div class="hero-stat-num" style="color:var(--cyan)">800+</div>
+        <div class="hero-stat-label">university chapters</div>
+      </div>
+      <div>
+        <div class="hero-stat-num" style="color:var(--pink)">~500TB</div>
+        <div class="hero-stat-label">prior scale (GoodRx)</div>
+      </div>
+      <div>
+        <div class="hero-stat-num" style="color:var(--yellow)">30+</div>
+        <div class="hero-stat-label">semantic metrics built</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="projects" class="projects">
+  <div class="projects-header">
+    <span class="section-label">Projects</span>
+    <span class="section-count">1 published · more in progress</span>
+  </div>
+
+  <div class="projects-grid">
+
+    <!-- PROJECT 1: LIVE -->
+    <a class="project-card" href="projects/compute-scale/index.html">
+      <div class="card-accent" style="background:linear-gradient(90deg,#00d4ff,#ff4d9d)"></div>
+      <div class="card-body">
+        <div class="card-meta">
+          <span class="card-num">01</span>
+          <span class="card-status status-live">Live</span>
+        </div>
+        <div class="card-title">The Compute Explosion</div>
+        <p class="card-desc">ENIAC to Grok-3 in 80 years: a data story about the most dramatic scaling event in the history of information processing. Includes the full pipeline — data sourcing, Python cleaning, dbt transformation, and four interactive D3 charts.</p>
+        <div class="card-tags">
+          <span class="card-tag" style="background:rgba(0,212,255,.1);color:#00d4ff">D3.js</span>
+          <span class="card-tag" style="background:rgba(167,139,250,.1);color:#a78bfa">dbt</span>
+          <span class="card-tag" style="background:rgba(59,130,246,.12);color:#60a5fa">Python</span>
+          <span class="card-tag" style="background:rgba(255,255,255,.05);color:#8892a4">Epoch AI</span>
+          <span class="card-tag" style="background:rgba(255,255,255,.05);color:#8892a4">TOP500</span>
+        </div>
+        <div class="card-footer">
+          <div class="card-stats">
+            <div class="card-stat">Charts <span>4</span></div>
+            <div class="card-stat">Sources <span>7</span></div>
+            <div class="card-stat">Read <span>~15m</span></div>
+          </div>
+          <span class="card-arrow">→</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- PROJECT 2: COMING SOON -->
+    <div class="project-card coming-soon">
+      <div class="card-accent" style="background:linear-gradient(90deg,#06d6a0,#a78bfa)"></div>
+      <div class="card-body">
+        <div class="card-meta">
+          <span class="card-num">02</span>
+          <span class="card-status status-soon">Coming soon</span>
+        </div>
+        <div class="card-title">Housing Equity in Los Angeles</div>
+        <p class="card-desc">A data story about housing cost burden, displacement, and the geography of affordability in LA. Built on Census ACS, HMDA, and LA County assessor data.</p>
+        <div class="card-tags">
+          <span class="card-tag" style="background:rgba(6,214,160,.08);color:#06d6a0">Census ACS</span>
+          <span class="card-tag" style="background:rgba(6,214,160,.08);color:#06d6a0">HMDA</span>
+          <span class="card-tag" style="background:rgba(255,255,255,.05);color:#8892a4">GeoPandas</span>
+          <span class="card-tag" style="background:rgba(255,255,255,.05);color:#8892a4">D3.js</span>
+        </div>
+        <div class="card-footer">
+          <div class="card-stats">
+            <div class="card-stat">Status <span>In progress</span></div>
+          </div>
+          <span class="card-arrow" style="color:var(--dim)">→</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROJECT 3: COMING SOON -->
+    <div class="project-card coming-soon">
+      <div class="card-accent" style="background:linear-gradient(90deg,#ffd166,#ff8c42)"></div>
+      <div class="card-body">
+        <div class="card-meta">
+          <span class="card-num">03</span>
+          <span class="card-status status-soon">Coming soon</span>
+        </div>
+        <div class="card-title">Wealth Distribution: A Visual Essay</div>
+        <p class="card-desc">Mapping the geometry of US wealth concentration from the Fed's Distributional Financial Accounts. How much is at the top — and what does "the top" actually look like at different scales.</p>
+        <div class="card-tags">
+          <span class="card-tag" style="background:rgba(255,209,102,.08);color:#ffd166">Fed DFA</span>
+          <span class="card-tag" style="background:rgba(255,209,102,.08);color:#ffd166">IRS SOI</span>
+          <span class="card-tag" style="background:rgba(255,255,255,.05);color:#8892a4">D3.js</span>
+        </div>
+        <div class="card-footer">
+          <div class="card-stats">
+            <div class="card-stat">Status <span>Planned</span></div>
+          </div>
+          <span class="card-arrow" style="color:var(--dim)">→</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div id="about" class="about">
+  <div class="about-inner">
+    <div class="section-label" style="margin-bottom:1.5rem">About this portfolio</div>
+    <h2>Data work in public.</h2>
+    <p>I believe data should be <strong>reproducible, transparent, and opinionated</strong>. Every project here shows its work — raw sources, cleaning logic, transformation code, and the design decisions behind the visualizations.</p>
+    <p>My professional focus is data infrastructure and analytics for mission-driven organizations. My personal interests in <strong>housing equity, income inequality, and wealth distribution</strong> show up in the projects I choose to build here.</p>
+    <p>This site is a GitHub Pages deployment from a single repository. No build step. Each project is a self-contained folder with an <code>index.html</code> and associated assets. The charts are interactive D3.js — no static PNGs, no external dashboarding tools.</p>
+    <div class="about-links">
+      <a class="about-link" href="https://github.com/[your-handle]/jordan-data-projects" target="_blank">GitHub Repo</a>
+      <a class="about-link" href="https://linkedin.com/in/[your-handle]" target="_blank">LinkedIn</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>Built by Jordan &nbsp;·&nbsp; Los Angeles, CA &nbsp;·&nbsp; March 2026</p>
+  <p><a href="https://github.com/[your-handle]/jordan-data-projects" target="_blank">View source on GitHub</a></p>
+</footer>
+
+</body>
+</html>

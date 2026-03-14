@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Compute Explosion — Jordan's Data Projects</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+  :root {
+    --bg: #0a0c10; --bg2: #0f1218; --bg3: #141820;
+    --surface: #1a1f2e; --surface2: #1e2535;
+    --border: rgba(255,255,255,0.07); --border2: rgba(255,255,255,0.12);
+    --text: #e8eaf0; --muted: #8892a4; --dim: #4a5568;
+    --cyan: #00d4ff; --cyan-dim: rgba(0,212,255,0.12);
+    --pink: #ff4d9d; --pink-dim: rgba(255,77,157,0.1);
+    --yellow: #ffd166; --green: #06d6a0;
+    --mono: 'JetBrains Mono', monospace;
+    --serif: 'DM Serif Display', serif;
+    --sans: 'DM Sans', sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16px;line-height:1.75;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.025) 2px,rgba(0,0,0,0.025) 4px);pointer-events:none;z-index:9999}
+
+  nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,12,16,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 2rem;height:52px;display:flex;align-items:center;justify-content:space-between}
+  .nav-back{font-family:var(--mono);font-size:11px;color:var(--muted);text-decoration:none;letter-spacing:.08em;display:flex;align-items:center;gap:.5rem;transition:color .2s}
+  .nav-back:hover{color:var(--cyan)}
+  .nav-title{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.08em}
+  .nav-links{display:flex;gap:1.5rem;list-style:none}
+  .nav-links a{font-family:var(--mono);font-size:11px;color:var(--muted);text-decoration:none;letter-spacing:.06em;text-transform:uppercase;transition:color .2s}
+  .nav-links a:hover{color:var(--cyan)}
+
+  .hero{min-height:100vh;display:flex;align-items:center;padding:100px 2rem 4rem;position:relative;overflow:hidden}
+  .hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,212,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.03) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse at center,black 30%,transparent 80%)}
+  .hero-content{max-width:900px;margin:0 auto;position:relative;z-index:1}
+  .hero-eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--cyan);margin-bottom:1.5rem;display:flex;align-items:center;gap:.75rem}
+  .hero-eyebrow::before{content:'';display:block;width:32px;height:1px;background:var(--cyan)}
+  h1{font-family:var(--serif);font-size:clamp(2.4rem,5.5vw,4.8rem);line-height:1.1;margin-bottom:1.5rem;font-weight:400}
+  h1 em{font-style:italic;color:var(--cyan)}
+  .hero-sub{font-size:1.1rem;color:var(--muted);max-width:600px;margin-bottom:2rem;line-height:1.8}
+  .hero-meta{display:flex;align-items:center;gap:2rem;font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.08em}
+  .hero-meta span{color:var(--muted)}
+  .scroll-hint{margin-top:3.5rem;display:flex;align-items:center;gap:.75rem;font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.1em}
+  .scroll-line{width:40px;height:1px;background:var(--border2);animation:sp 2s ease-in-out infinite}
+  @keyframes sp{0%,100%{opacity:.3}50%{opacity:1}}
+
+  .stat-banner{background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:2rem}
+  .stats-grid{max-width:1000px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr)}
+  .stat-item{padding:1rem 2rem;border-right:1px solid var(--border)}
+  .stat-item:last-child{border-right:none}
+  .stat-num{font-family:var(--mono);font-size:1.9rem;font-weight:700;line-height:1;margin-bottom:.5rem}
+  .stat-label{font-size:11px;color:var(--muted);font-family:var(--mono);letter-spacing:.05em;line-height:1.5}
+
+  .container{max-width:860px;margin:0 auto;padding:0 2rem}
+  section{padding:5rem 0;border-bottom:1px solid var(--border)}
+  section:last-child{border-bottom:none}
+  .section-label{font-family:var(--mono);font-size:10px;letter-spacing:.25em;text-transform:uppercase;color:var(--dim);margin-bottom:2.5rem;display:flex;align-items:center;gap:.75rem}
+  .section-label::after{content:'';flex:1;height:1px;background:var(--border);max-width:80px}
+  h2{font-family:var(--serif);font-size:clamp(1.7rem,3.2vw,2.6rem);font-weight:400;line-height:1.2;margin-bottom:1.5rem}
+  h3{font-family:var(--mono);font-size:12px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--cyan);margin-bottom:1rem;margin-top:2.5rem}
+  p{color:var(--muted);margin-bottom:1.25rem;font-size:1.05rem;line-height:1.8}
+  p strong{color:var(--text);font-weight:500}
+
+  .callout{border-left:2px solid var(--cyan);padding:1.25rem 1.75rem;margin:2.5rem 0;background:var(--cyan-dim);border-radius:0 8px 8px 0}
+  .callout p{font-family:var(--serif);font-style:italic;font-size:1.2rem;color:var(--text);margin:0;line-height:1.6}
+  .callout-warn{border-left-color:var(--yellow);background:rgba(255,209,102,.07)}
+  .callout-warn p{font-family:var(--sans);font-style:normal;font-size:.95rem;color:rgba(255,209,102,.9)}
+
+  .chart-wrap{margin:2.5rem 0;border:1px solid var(--border2);border-radius:12px;overflow:hidden;background:var(--bg2)}
+  .chart-header{padding:.875rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+  .chart-title{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  .chart-tag{font-family:var(--mono);font-size:10px;padding:2px 8px;border:1px solid var(--border2);border-radius:4px;color:var(--dim)}
+  .chart-inner{padding:1rem 1rem .5rem;min-height:200px}
+  .chart-caption{padding:.625rem 1.5rem;border-top:1px solid var(--border);font-family:var(--mono);font-size:10px;color:var(--dim);line-height:1.5}
+
+  .pipeline-step{margin:1.75rem 0;border:1px solid var(--border);border-radius:12px;overflow:hidden}
+  .pipeline-header{padding:.875rem 1.25rem;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.875rem;cursor:pointer;user-select:none;transition:background .2s}
+  .pipeline-header:hover{background:var(--surface2)}
+  .pipeline-num{width:26px;height:26px;border-radius:50%;border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;color:var(--muted);flex-shrink:0}
+  .pipeline-title{font-family:var(--mono);font-size:12px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--text);flex:1}
+  .pipeline-badge{font-family:var(--mono);font-size:10px;padding:2px 7px;border-radius:4px}
+  .badge-py{background:rgba(59,130,246,.14);color:#60a5fa;border:1px solid rgba(59,130,246,.2)}
+  .badge-sql{background:rgba(16,185,129,.1);color:#34d399;border:1px solid rgba(16,185,129,.2)}
+  .badge-dbt{background:rgba(167,139,250,.1);color:#a78bfa;border:1px solid rgba(167,139,250,.2)}
+  .badge-vega{background:rgba(255,141,66,.1);color:#fb923c;border:1px solid rgba(255,141,66,.2)}
+  .pipeline-toggle{font-size:14px;color:var(--dim);transition:transform .2s;flex-shrink:0}
+  .pipeline-header.open .pipeline-toggle{transform:rotate(180deg)}
+  .pipeline-body{display:none;padding:1.5rem;background:var(--bg)}
+  .pipeline-body.open{display:block}
+  .pipeline-body p{font-size:.95rem;margin-bottom:1rem}
+
+  pre{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:1.1rem 1.4rem;overflow-x:auto;margin:1.1rem 0;font-family:var(--mono);font-size:12px;line-height:1.7}
+  .code-header{display:flex;align-items:center;justify-content:space-between;padding:.45rem 1rem;background:var(--surface);border:1px solid var(--border);border-bottom:none;border-radius:8px 8px 0 0;font-family:var(--mono);font-size:10px;color:var(--dim)}
+  .code-header+pre{border-radius:0 0 8px 8px;margin-top:0}
+  .kw{color:#c792ea}.fn{color:#82aaff}.str{color:#c3e88d}.num{color:#f78c6c}.cm{color:#546e7a;font-style:italic}.op{color:#89ddff}.sql-kw{color:#c792ea}.sql-fn{color:#82aaff}.dbt{color:#a78bfa}
+
+  .source-table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:11px;margin:1.5rem 0}
+  .source-table th{text-align:left;padding:.625rem 1rem;border-bottom:1px solid var(--border2);color:var(--dim);font-weight:400;letter-spacing:.08em;text-transform:uppercase;font-size:10px}
+  .source-table td{padding:.625rem 1rem;border-bottom:1px solid var(--border);color:var(--muted);vertical-align:top;line-height:1.5}
+  .source-table tr:last-child td{border-bottom:none}
+  .source-table tr:hover td{background:var(--surface)}
+  .source-table a{color:var(--cyan);text-decoration:none}
+  .source-table a:hover{text-decoration:underline}
+  .tag{display:inline-block;padding:1px 6px;border-radius:3px;font-size:10px;font-family:var(--mono)}
+  .tag-manual{background:rgba(255,141,66,.12);color:#fb923c}
+  .tag-csv{background:rgba(6,214,160,.1);color:var(--green)}
+
+  .finding-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:2rem 0}
+  .finding-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.25rem}
+  .finding-num{font-family:var(--mono);font-size:1.8rem;font-weight:700;line-height:1;margin-bottom:.5rem}
+  .finding-desc{font-size:12px;color:var(--muted);line-height:1.5;margin:0}
+  .method-note{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:.875rem 1.1rem;margin:1.25rem 0;font-family:var(--mono);font-size:10px;color:var(--dim);line-height:1.6}
+  .method-note strong{color:var(--muted)}
+
+  .timeline-item{display:grid;grid-template-columns:70px 1fr;gap:1.25rem;margin-bottom:1.25rem;align-items:start}
+  .timeline-year{font-family:var(--mono);font-size:12px;color:var(--cyan);padding-top:2px;text-align:right}
+  .timeline-content{border-left:1px solid var(--border2);padding-left:1.25rem;position:relative}
+  .timeline-content::before{content:'';position:absolute;left:-4px;top:8px;width:7px;height:7px;border-radius:50%;background:var(--cyan)}
+  .timeline-label{font-size:13px;font-weight:500;color:var(--text);margin-bottom:.2rem}
+  .timeline-desc{font-size:12px;color:var(--muted);margin:0}
+
+  footer{background:var(--bg2);border-top:1px solid var(--border);padding:2.5rem 2rem;text-align:center}
+  footer p{font-family:var(--mono);font-size:10px;color:var(--dim);margin:0 0 .4rem}
+  footer a{color:var(--cyan);text-decoration:none}
+  .section-anchor{display:block;position:relative;top:-80px;visibility:hidden}
+
+  @media(max-width:640px){.stats-grid{grid-template-columns:1fr 1fr}.stat-item{border-right:none;border-bottom:1px solid var(--border)}.finding-grid{grid-template-columns:1fr}.timeline-item{grid-template-columns:56px 1fr}.nav-links{display:none}}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-back" href="../../index.html">← all projects</a>
+  <span class="nav-title">compute-scale</span>
+  <ul class="nav-links">
+    <li><a href="#narrative">Story</a></li>
+    <li><a href="#sources">Sources</a></li>
+    <li><a href="#pipeline">Pipeline</a></li>
+    <li><a href="#charts">Charts</a></li>
+    <li><a href="#findings">Findings</a></li>
+  </ul>
+</nav>
+
+<div class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">Data Story &mdash; March 2026</div>
+    <h1>The <em>Compute Explosion</em><br>is unlike anything<br>that has ever happened.</h1>
+    <p class="hero-sub">From ENIAC's 5,000 vacuum tubes to Grok-3's 200,000 GPUs — a data-driven exploration of the most dramatic scaling event in the history of information processing. This post shows the full pipeline: sources, cleaning, transformation, and interactive visualization.</p>
+    <div class="hero-meta">BY <span>Jordan</span> &nbsp;·&nbsp; HEAD OF DATA &nbsp;·&nbsp; <span>4 INTERACTIVE CHARTS</span> &nbsp;·&nbsp; <span>~15 MIN READ</span></div>
+    <div class="scroll-hint"><span class="scroll-line"></span>scroll to explore</div>
+  </div>
+</div>
+
+<div class="stat-banner">
+  <div class="stats-grid">
+    <div class="stat-item"><div class="stat-num" style="color:var(--cyan)">24</div><div class="stat-label">orders of magnitude<br>ENIAC → Grok-3 (80 yrs)</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--pink)">10²⁷</div><div class="stat-label">peak FLOPs<br>Grok-3 training run</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--yellow)">41</div><div class="stat-label">orders of magnitude<br>Big Bang (13.8B yrs)</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--green)">10¹⁵</div><div class="stat-label">max neurons<br>all biology ever — combined</div></div>
+  </div>
+</div>
+
+<span class="section-anchor" id="narrative"></span>
+<section>
+  <div class="container">
+    <div class="section-label">01 &mdash; The Story</div>
+    <h2>Eighty years. Twenty-four orders of magnitude. No precedent.</h2>
+    <p>When ENIAC came online in 1945, it performed roughly <strong>5,000 operations per second</strong>. It weighed 30 tons, occupied 1,800 square feet, and consumed 150 kilowatts of power. At the time, it was the most powerful calculating machine humanity had ever built.</p>
+    <p>By 2025, training a single AI model — Grok-3 — consumed an estimated <strong>10²⁷ floating-point operations</strong>. That's a number so large it defies intuition. It's more than the number of grains of sand on every beach on Earth, multiplied by a billion.</p>
+    <div class="callout"><p>"The compute growth since 1945 is larger than the gap between a single neuron and every human brain that has ever existed — combined."</p></div>
+    <p>This isn't a metaphor. It's a mathematical fact, and the charts on this page were built to make that viscerally clear. The data is sourced from Epoch AI, TOP500.org, the xAI Colossus documentation, and Oak Ridge National Laboratory. Every number is cited. Every transformation is shown.</p>
+    <h3>Why this matters</h3>
+    <p>The standard narrative around AI focuses on capabilities: what models can do, what jobs they might replace, whether they're "intelligent." But the compute story is more fundamental. <strong>We have never scaled anything this fast.</strong> Not steel production during WWII. Not transistor counts. Not internet bandwidth. Nothing.</p>
+    <p>The Big Bang expanded the observable universe by roughly 41 orders of magnitude over 13.8 billion years. Human computation expanded 24 orders of magnitude in 80 years — and is still accelerating. At current rates, computation will match the full scale of cosmic expansion within centuries, not billions of years.</p>
+    <div class="callout callout-warn"><p><strong>Methodological note:</strong> FLOPs are not a measure of "intelligence." They measure raw compute consumed. Comparisons between neuron counts and FLOPs are analogical, not equivalent — the charts in section 4 are explicitly labeled as scale comparisons. Projected values carry ±1 order of magnitude uncertainty.</p></div>
+    <h3>Four charts, one argument</h3>
+    <div style="margin:1.5rem 0">
+      <div class="timeline-item"><div class="timeline-year">Chart 1</div><div class="timeline-content"><div class="timeline-label">Maximum computational power, 1945–2026</div><div class="timeline-desc">Peak FLOP/s across supercomputers and AI training runs — the inflection where AI diverges from HPC</div></div></div>
+      <div class="timeline-item"><div class="timeline-year">Chart 2</div><div class="timeline-content"><div class="timeline-label">Biological neurons vs. silicon FLOPs (dual scale)</div><div class="timeline-desc">Side-by-side: the full range of biological intelligence against the full range of silicon compute</div></div></div>
+      <div class="timeline-item"><div class="timeline-year">Chart 3</div><div class="timeline-content"><div class="timeline-label">Biological vs. machine — same scale</div><div class="timeline-desc">Both axes forced to identical range. Nothing biological exists above 10¹⁵. Grok-3 sits at 10²⁷.</div></div></div>
+      <div class="timeline-item"><div class="timeline-year">Chart 4</div><div class="timeline-content"><div class="timeline-label">The Big Bang vs. the compute explosion</div><div class="timeline-desc">Cosmic expansion alongside compute growth. The Big Bang took 13.8B years to do what computation did in 80.</div></div></div>
+    </div>
+  </div>
+</section>
+
+<span class="section-anchor" id="sources"></span>
+<section>
+  <div class="container">
+    <div class="section-label">02 &mdash; Data Sources</div>
+    <h2>Where the numbers come from.</h2>
+    <p>Every data point is traceable to a primary source. The table below documents each source, what it provides, and the collection method.</p>
+    <table class="source-table">
+      <thead><tr><th>Source</th><th>Data provided</th><th>Type</th></tr></thead>
+      <tbody>
+        <tr><td><a href="https://epochai.org/data/notable-ai-models" target="_blank">Epoch AI — Notable AI Models</a></td><td>AI training compute (FLOPs), model name, org, year. Primary source for all AI training runs.</td><td><span class="tag tag-csv">CSV</span></td></tr>
+        <tr><td><a href="https://top500.org/statistics/" target="_blank">TOP500.org</a></td><td>Peak performance (GFlops/s) of top 500 supercomputers, ranked twice yearly since 1993.</td><td><span class="tag tag-csv">CSV</span></td></tr>
+        <tr><td><a href="https://www.olcf.ornl.gov/" target="_blank">Oak Ridge National Laboratory</a></td><td>Frontier supercomputer specs: 1.194 exaFLOP/s — first exascale machine.</td><td><span class="tag tag-manual">Manual</span></td></tr>
+        <tr><td><a href="https://x.ai/blog/grok-3" target="_blank">xAI Colossus documentation</a></td><td>Grok-3: 200,000 H100-class GPUs, ~0.25 GW power draw, est. ~10²⁷ FLOPs training compute.</td><td><span class="tag tag-manual">Manual</span></td></tr>
+        <tr><td><a href="https://en.wikipedia.org/wiki/ENIAC" target="_blank">Wikipedia — ENIAC</a></td><td>ENIAC 1945 baseline: ~5 kFLOP/s peak performance.</td><td><span class="tag tag-manual">Manual</span></td></tr>
+        <tr><td>Neuroscience literature (Azevedo et al. 2009, Herculano-Houzel 2009)</td><td>Neuron counts: C. elegans (302), ant (~250K), honeybee (~1M), human (~86B), all-humans-ever (~10¹⁵).</td><td><span class="tag tag-manual">Manual</span></td></tr>
+        <tr><td>NIST / NASA cosmology constants</td><td>Universe age (13.8B yrs), Planck length, observable universe scale. Used for Chart 4.</td><td><span class="tag tag-manual">Manual</span></td></tr>
+      </tbody>
+    </table>
+    <div class="method-note"><strong>On projected values:</strong> "2026 Frontier (Projected)" is an estimate based on publicly announced infrastructure builds. Marked visually with reduced opacity. All other values are published actuals or published estimates from primary sources.</div>
+  </div>
+</section>
+
+<span class="section-anchor" id="pipeline"></span>
+<section>
+  <div class="container">
+    <div class="section-label">03 &mdash; The Pipeline</div>
+    <h2>From raw CSVs to a story about cosmic scale.</h2>
+    <p>The full five-stage pipeline — ingest, clean, transform, QA, visualize. Each stage is expandable with the actual code.</p>
+
+    <div class="pipeline-step">
+      <div class="pipeline-header" onclick="togglePipeline(this)">
+        <div class="pipeline-num">1</div>
+        <div class="pipeline-title">Ingest — pulling raw data</div>
+        <span class="pipeline-badge badge-py">Python</span>
+        <span class="pipeline-toggle">▾</span>
+      </div>
+      <div class="pipeline-body">
+        <p>Two automated sources (Epoch AI, TOP500) pulled via direct download. Manual data points loaded from a hand-maintained seed CSV.</p>
+        <div class="code-header"><span>ingest/fetch_sources.py</span><span>Python 3.11</span></div>
+        <pre><span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">import</span> requests
+<span class="kw">from</span> pathlib <span class="kw">import</span> Path
+<span class="kw">from</span> datetime <span class="kw">import</span> datetime
+
+RAW_DIR = Path(<span class="str">"data/raw"</span>)
+RAW_DIR.mkdir(parents=<span class="kw">True</span>, exist_ok=<span class="kw">True</span>)
+
+EPOCH_AI_URL = <span class="str">"https://epochai.org/data/notable-ai-models.csv"</span>
+
+<span class="kw">def</span> <span class="fn">fetch_epoch_ai</span>():
+    response = requests.get(EPOCH_AI_URL, timeout=<span class="num">30</span>)
+    response.raise_for_status()
+    path = RAW_DIR / <span class="str">f"epoch_ai_{datetime.today().strftime('%Y%m%d')}.csv"</span>
+    path.write_bytes(response.content)
+    <span class="kw">return</span> pd.read_csv(path)
+
+<span class="kw">def</span> <span class="fn">load_top500</span>(filepath: str) -> pd.DataFrame:
+    <span class="cm"># Manual download from top500.org/statistics/</span>
+    df = pd.read_csv(filepath)
+    <span class="kw">return</span> df[[<span class="str">"Name"</span>, <span class="str">"Rmax [TFlop/s]"</span>, <span class="str">"Year"</span>, <span class="str">"Manufacturer"</span>]]
+
+<span class="kw">def</span> <span class="fn">load_seed_data</span>() -> pd.DataFrame:
+    <span class="cm"># ENIAC, neuron counts, cosmology constants</span>
+    <span class="kw">return</span> pd.read_csv(<span class="str">"data/seed/manual_datapoints.csv"</span>)</pre>
+      </div>
+    </div>
+
+    <div class="pipeline-step">
+      <div class="pipeline-header" onclick="togglePipeline(this)">
+        <div class="pipeline-num">2</div>
+        <div class="pipeline-title">Clean — standardizing units and nulls</div>
+        <span class="pipeline-badge badge-py">Python</span>
+        <span class="pipeline-toggle">▾</span>
+      </div>
+      <div class="pipeline-body">
+        <p>Core challenge: Epoch AI reports FLOPs (total training compute) while TOP500 reports GFlop/s (peak throughput). Both normalized to log₁₀ scale with different series tags to preserve the distinction.</p>
+        <div class="code-header"><span>clean/normalize_flops.py</span><span>Python 3.11</span></div>
+        <pre><span class="kw">import</span> numpy <span class="kw">as</span> np
+
+UNIT_MAP = {
+    <span class="str">"FLOP/s"</span>: <span class="num">1</span>, <span class="str">"KFLOP/s"</span>: <span class="num">1e3</span>, <span class="str">"MFLOP/s"</span>: <span class="num">1e6</span>,
+    <span class="str">"GFLOP/s"</span>: <span class="num">1e9</span>, <span class="str">"TFLOP/s"</span>: <span class="num">1e12</span>,
+    <span class="str">"PFLOP/s"</span>: <span class="num">1e15</span>, <span class="str">"EFLOP/s"</span>: <span class="num">1e18</span>,
+}
+
+<span class="kw">def</span> <span class="fn">clean_epoch_ai</span>(df):
+    df = df.dropna(subset=[<span class="str">"Training compute (FLOP)"</span>])
+    df = df[df[<span class="str">"Training compute (FLOP)"</span>] > <span class="num">0</span>]
+    df[<span class="str">"log10_flops"</span>] = np.log10(df[<span class="str">"Training compute (FLOP)"</span>])
+    df[<span class="str">"year"</span>] = pd.to_datetime(df[<span class="str">"Publication date"</span>]).dt.year
+    df[<span class="str">"series"</span>] = <span class="str">"ai_training"</span>
+    <span class="kw">return</span> df[[<span class="str">"Name"</span>, <span class="str">"year"</span>, <span class="str">"log10_flops"</span>, <span class="str">"series"</span>]]
+
+<span class="kw">def</span> <span class="fn">clean_top500</span>(df):
+    <span class="cm"># Rmax is in TFlop/s; take #1 system per year</span>
+    df[<span class="str">"log10_flops"</span>] = np.log10(df[<span class="str">"Rmax [TFlop/s]"</span>] * <span class="num">1e12</span>)
+    df[<span class="str">"series"</span>] = <span class="str">"supercomputer"</span>
+    <span class="kw">return</span> df.groupby(<span class="str">"year"</span>).apply(
+        <span class="kw">lambda</span> x: x.nlargest(<span class="num">1</span>, <span class="str">"log10_flops"</span>)
+    ).reset_index(drop=<span class="kw">True</span>)</pre>
+        <div class="method-note"><strong>Key decision:</strong> Total training FLOPs (Epoch AI) vs. peak throughput (TOP500) are not directly comparable — one is a total, one is a rate. Both appear on the same log scale as proxies for "how much compute exists," with different visual encodings to signal this distinction.</div>
+      </div>
+    </div>
+
+    <div class="pipeline-step">
+      <div class="pipeline-header" onclick="togglePipeline(this)">
+        <div class="pipeline-num">3</div>
+        <div class="pipeline-title">Transform — dbt models</div>
+        <span class="pipeline-badge badge-dbt">dbt</span>
+        <span class="pipeline-badge badge-sql">SQL</span>
+        <span class="pipeline-toggle">▾</span>
+      </div>
+      <div class="pipeline-body">
+        <p>Three dbt models produce the analytical tables. Staging normalizes raw sources. The mart adds order-of-magnitude jump calculations and milestone tagging. A separate model unifies the biological + silicon comparison.</p>
+        <div class="code-header"><span>models/mart/mart_compute_timeline.sql</span><span>dbt / Snowflake SQL</span></div>
+        <pre><span class="sql-kw">with</span> events <span class="sql-kw">as</span> (
+    <span class="sql-kw">select</span> * <span class="sql-kw">from</span> {{ <span class="dbt">ref</span>(<span class="str">'stg_compute_events'</span>) }}
+),
+milestones <span class="sql-kw">as</span> (
+    <span class="sql-kw">select</span>
+        *,
+        log10_flops - <span class="sql-fn">lag</span>(log10_flops) <span class="sql-kw">over</span> (
+            <span class="sql-kw">partition by</span> series <span class="sql-kw">order by</span> year
+        ) <span class="sql-kw">as</span> orders_of_magnitude_jump
+    <span class="sql-kw">from</span> events
+)
+<span class="sql-kw">select</span>
+    *,
+    <span class="sql-kw">case</span>
+        <span class="sql-kw">when</span> orders_of_magnitude_jump >= <span class="num">3</span> <span class="sql-kw">then</span> <span class="str">'major_milestone'</span>
+        <span class="sql-kw">when</span> orders_of_magnitude_jump >= <span class="num">1</span> <span class="sql-kw">then</span> <span class="str">'milestone'</span>
+        <span class="sql-kw">else</span> <span class="str">'incremental'</span>
+    <span class="sql-kw">end</span> <span class="sql-kw">as</span> milestone_type
+<span class="sql-kw">from</span> milestones
+<span class="sql-kw">order by</span> year, series</pre>
+        <div class="code-header"><span>models/mart/mart_bio_vs_silicon.sql</span><span>dbt / Snowflake SQL</span></div>
+        <pre><span class="cm">-- Unified scale table: biological neuron counts + silicon FLOPs</span>
+<span class="cm">-- Note: neurons ≠ FLOPs. Scale comparison only.</span>
+<span class="sql-kw">select</span>
+    entity_name,
+    <span class="str">'biological'</span> <span class="sql-kw">as</span> domain,
+    log10_neuron_count <span class="sql-kw">as</span> log10_scale_value,
+    description
+<span class="sql-kw">from</span> {{ <span class="dbt">ref</span>(<span class="str">'stg_biological_entities'</span>) }}
+
+<span class="sql-kw">union all</span>
+
+<span class="sql-kw">select</span>
+    system_name,
+    <span class="str">'silicon'</span>,
+    log10_flops,
+    notes
+<span class="sql-kw">from</span> {{ <span class="dbt">ref</span>(<span class="str">'stg_compute_events'</span>) }}
+<span class="sql-kw">where</span> system_name <span class="sql-kw">in</span> (
+    <span class="str">'ENIAC'</span>,<span class="str">'Cray-1'</span>,<span class="str">'ASCI Red'</span>,<span class="str">'IBM Roadrunner'</span>,
+    <span class="str">'IBM Summit'</span>,<span class="str">'Frontier'</span>,<span class="str">'GPT-3'</span>,<span class="str">'GPT-4'</span>,<span class="str">'Gemini Ultra'</span>,<span class="str">'Grok-3'</span>
+)</pre>
+      </div>
+    </div>
+
+    <div class="pipeline-step">
+      <div class="pipeline-header" onclick="togglePipeline(this)">
+        <div class="pipeline-num">4</div>
+        <div class="pipeline-title">QA — dbt tests and sanity checks</div>
+        <span class="pipeline-badge badge-dbt">dbt</span>
+        <span class="pipeline-toggle">▾</span>
+      </div>
+      <div class="pipeline-body">
+        <p>Schema tests enforce nulls, uniqueness, and valid ranges. A pytest suite spot-checks known values against primary sources with ±0.1 log₁₀ tolerance.</p>
+        <div class="code-header"><span>models/mart/mart_compute_timeline.yml</span><span>dbt schema tests</span></div>
+        <pre>models:
+  - name: mart_compute_timeline
+    columns:
+      - name: system_name
+        tests: [not_null, unique]
+      - name: year
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: <span class="num">1940</span>
+              max_value: <span class="num">2027</span>
+      - name: log10_flops
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: <span class="num">3</span>   <span class="cm"># ENIAC floor</span>
+              max_value: <span class="num">30</span>  <span class="cm"># conservative 2026 ceiling</span>
+      - name: series
+        tests:
+          - accepted_values:
+              values: [<span class="str">'supercomputer'</span>, <span class="str">'ai_training'</span>]</pre>
+        <div class="code-header"><span>tests/test_known_values.py</span><span>pytest</span></div>
+        <pre>KNOWN_VALUES = {
+    <span class="str">"ENIAC"</span>:          {<span class="str">"log10"</span>: <span class="num">3.7</span>,  <span class="str">"source"</span>: <span class="str">"Wikipedia"</span>},
+    <span class="str">"ASCI Red"</span>:       {<span class="str">"log10"</span>: <span class="num">12.0</span>, <span class="str">"source"</span>: <span class="str">"TOP500"</span>},
+    <span class="str">"IBM Roadrunner"</span>: {<span class="str">"log10"</span>: <span class="num">15.0</span>, <span class="str">"source"</span>: <span class="str">"TOP500"</span>},
+    <span class="str">"Frontier"</span>:       {<span class="str">"log10"</span>: <span class="num">18.08</span>,<span class="str">"source"</span>: <span class="str">"ORNL"</span>},
+    <span class="str">"GPT-3"</span>:          {<span class="str">"log10"</span>: <span class="num">23.49</span>,<span class="str">"source"</span>: <span class="str">"Epoch AI"</span>},
+}
+
+<span class="kw">def</span> <span class="fn">test_known_values</span>(mart_df):
+    <span class="kw">for</span> name, expected <span class="kw">in</span> KNOWN_VALUES.items():
+        row = mart_df[mart_df[<span class="str">"system_name"</span>] == name]
+        actual = row[<span class="str">"log10_flops"</span>].values[<span class="num">0</span>]
+        <span class="cm"># ±0.1 log10 tolerance — order-of-magnitude estimates</span>
+        <span class="kw">assert</span> abs(actual - expected[<span class="str">"log10"</span>]) < <span class="num">0.1</span></pre>
+      </div>
+    </div>
+
+    <div class="pipeline-step">
+      <div class="pipeline-header" onclick="togglePipeline(this)">
+        <div class="pipeline-num">5</div>
+        <div class="pipeline-title">Visualize — D3.js chart methodology</div>
+        <span class="pipeline-badge badge-vega">D3.js v7</span>
+        <span class="pipeline-toggle">▾</span>
+      </div>
+      <div class="pipeline-body">
+        <p>All four charts are built with D3.js v7, sharing a common dark theme and log-scale formatting. Key design decisions:</p>
+        <p><strong>Why log scale?</strong> A linear scale is useless — ENIAC would be invisible at any resolution that shows Grok-3. The log scale is not a trick; it's the only honest representation of 24 orders of magnitude.</p>
+        <p><strong>Why are neurons and FLOPs on the same axis in Chart 3?</strong> They measure different things. The chart forces the same axis to illustrate a point about scale, not equivalence. Every labeled entity carries a description of what the number actually means, and the subtitle makes the analogical nature explicit.</p>
+        <p><strong>Why include projected values?</strong> The 2026 Frontier projection represents publicly announced infrastructure. Excluding it truncates the story at the most interesting edge. Projected values are visually differentiated (reduced opacity) and documented in the source table.</p>
+        <div class="code-header"><span>assets/charts.js — shared config</span><span>D3.js v7</span></div>
+        <pre><span class="cm">// Shared palette — all charts use these constants</span>
+<span class="kw">const</span> C = {
+  cyan:   <span class="str">"#00d4ff"</span>,  <span class="cm">// supercomputers / HPC</span>
+  pink:   <span class="str">"#ff4d9d"</span>,  <span class="cm">// AI training runs</span>
+  green:  <span class="str">"#06d6a0"</span>,  <span class="cm">// cosmos / silicon (Chart 4)</span>
+  yellow: <span class="str">"#ffd166"</span>,  <span class="cm">// annotations / gap markers</span>
+  muted:  <span class="str">"#8892a4"</span>,  <span class="cm">// labels</span>
+};
+
+<span class="cm">// Log-scale Y axis formatter</span>
+<span class="cm">// Maps raw values to human-readable SI prefixes + scientific notation</span>
+<span class="kw">function</span> <span class="fn">logLabel</span>(v) {
+  <span class="kw">const</span> exp = Math.<span class="fn">round</span>(Math.<span class="fn">log10</span>(v));
+  <span class="kw">const</span> labels = {
+    <span class="num">3</span>:<span class="str">"1K"</span>, <span class="num">6</span>:<span class="str">"1M"</span>, <span class="num">9</span>:<span class="str">"1G"</span>, <span class="num">12</span>:<span class="str">"1T"</span>,
+    <span class="num">15</span>:<span class="str">"1P"</span>, <span class="num">18</span>:<span class="str">"1E"</span>, <span class="num">21</span>:<span class="str">"1Z"</span>, <span class="num">24</span>:<span class="str">"1Y"</span>,
+    <span class="num">27</span>:<span class="str">"10²⁷"</span>, <span class="num">30</span>:<span class="str">"10³⁰"</span>
+  };
+  <span class="kw">return</span> labels[exp] || <span class="str">`10^${exp}`</span>;
+}</pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<span class="section-anchor" id="charts"></span>
+<section>
+  <div class="container">
+    <div class="section-label">04 &mdash; The Visualizations</div>
+    <h2>Four ways to look at a number that doesn't fit in your head.</h2>
+    <p>Each chart makes the same underlying point from a different angle. Read them in order — they build on each other.</p>
+
+    <div class="chart-wrap">
+      <div class="chart-header">
+        <span class="chart-title">Chart 1 — Maximum computational power, 1945–2026</span>
+        <span class="chart-tag">log scale · FLOP/s</span>
+      </div>
+      <div class="chart-inner" id="chart1"></div>
+      <div class="chart-caption">Sources: Epoch AI, TOP500.org, xAI Colossus, ORNL · AI training FLOPs are published/estimated values · Projected values shown with dashed line</div>
+    </div>
+    <p>The two series (supercomputer throughput in cyan, AI training in pink) diverge sharply after 2020. Frontier — the world's most powerful supercomputer — sits at 10¹⁸ FLOPs. <strong>Grok-3's training run consumed 10²⁷ FLOPs.</strong> That's 9 orders of magnitude beyond the fastest supercomputer — a billion-fold gap, opened in roughly five years.</p>
+
+    <div class="chart-wrap">
+      <div class="chart-header">
+        <span class="chart-title">Chart 2 — Biological neurons vs. silicon FLOPs (dual scale)</span>
+        <span class="chart-tag">log scale · comparative</span>
+      </div>
+      <div class="chart-inner" id="chart2"></div>
+      <div class="chart-caption">Left: neuron count (biological). Right: total training FLOPs (silicon). Not equivalent measures — scale comparison only. Neuron counts from Azevedo et al. 2009, Herculano-Houzel 2009.</div>
+    </div>
+    <p>The biological range spans roughly 15 orders of magnitude — from a single neuron to all human neurons ever (~10¹⁵). The silicon range spans ~24 orders of magnitude (ENIAC to Grok-3). The left panel tops out at what we recognize as intelligence. The right panel has already blown past it.</p>
+
+    <div class="chart-wrap">
+      <div class="chart-header">
+        <span class="chart-title">Chart 3 — Biological intelligence vs. machine computation (same scale)</span>
+        <span class="chart-tag">log scale · unified axis</span>
+      </div>
+      <div class="chart-inner" id="chart3"></div>
+      <div class="chart-caption">Both biological neuron counts and silicon FLOPs on the same log₁₀ axis. Scale comparison, not equivalence. Everything biological sits below 10¹⁵. Nothing biological exists in the upper two-thirds of this chart.</div>
+    </div>
+    <p>Forced onto a single axis, the biological range occupies the bottom. The top of the chart — where Grok-3 training sits — is a region where <strong>nothing biological has ever existed</strong>. That's not editorial. It's a description of the chart's empty space.</p>
+
+    <div class="chart-wrap">
+      <div class="chart-header">
+        <span class="chart-title">Chart 4 — The Big Bang vs. the compute explosion (same scale)</span>
+        <span class="chart-tag">log scale · cosmological</span>
+      </div>
+      <div class="chart-inner" id="chart4"></div>
+      <div class="chart-caption">Left: expansion of the universe, Planck length to present (~41 orders over 13.8B years). Right: computation from ENIAC to projected 2026 (~24 orders in 80 years). Sources: NIST, NASA, Epoch AI.</div>
+    </div>
+    <p>The Big Bang expanded by 41 orders of magnitude over 13.8 billion years. Human computation expanded 24 orders in 80 years — and is still accelerating. <strong>At current rates, computation will match the full scale of cosmic expansion within centuries, not billions of years.</strong></p>
+  </div>
+</section>
+
+<span class="section-anchor" id="findings"></span>
+<section>
+  <div class="container">
+    <div class="section-label">05 &mdash; Key Findings</div>
+    <h2>What the data actually shows.</h2>
+    <div class="finding-grid">
+      <div class="finding-card"><div class="finding-num" style="color:var(--cyan)">24x</div><p class="finding-desc">Orders of magnitude in 80 years — larger than the gap between one neuron and all biology ever combined</p></div>
+      <div class="finding-card"><div class="finding-num" style="color:var(--pink)">9 OOM</div><p class="finding-desc">Gap between the world's fastest supercomputer (Frontier, 10¹⁸) and Grok-3 training (10²⁷) — opened in ~5 years</p></div>
+      <div class="finding-card"><div class="finding-num" style="color:var(--yellow)">10¹⁵</div><p class="finding-desc">Ceiling of all biological computation ever. Every neuron, every brain, every organism. Machine compute passed this ~2020.</p></div>
+      <div class="finding-card"><div class="finding-num" style="color:var(--green)">~2×/yr</div><p class="finding-desc">Rough doubling rate of frontier AI training compute since 2010, faster than Moore's Law and still accelerating</p></div>
+    </div>
+    <div class="callout"><p>The question isn't whether this growth is "good" or "bad." The question is whether we have frameworks adequate to reason about what we're building — and whether we're building them fast enough.</p></div>
+    <h3>What this project doesn't answer</h3>
+    <p>Compute is a proxy, not a measure of intelligence. Efficiency gains mean later models do more per FLOP. The biological comparisons are analogical. This project makes no claim about AI consciousness or capability trajectories — only about the scale of infrastructure we've built in 80 years.</p>
+    <h3>Reproduce this analysis</h3>
+    <div class="code-header"><span>README — quickstart</span><span>bash</span></div>
+    <pre><span class="cm"># Clone the portfolio repo</span>
+git clone https://github.com/[your-handle]/jordan-data-projects
+cd jordan-data-projects/projects/compute-scale
+
+<span class="cm"># Install Python dependencies</span>
+pip install -r requirements.txt
+
+<span class="cm"># Fetch raw data</span>
+python ingest/fetch_sources.py
+
+<span class="cm"># Run dbt (requires Snowflake creds in profiles.yml)</span>
+dbt deps && dbt run && dbt test
+
+<span class="cm"># Open in browser — charts render from D3, no build step needed</span>
+open index.html</pre>
+  </div>
+</section>
+
+<footer>
+  <p>Built by Jordan &nbsp;·&nbsp; Head of Data &nbsp;·&nbsp; <a href="../../index.html">← back to all projects</a></p>
+  <p>Data: <a href="https://epochai.org" target="_blank">Epoch AI</a> · <a href="https://top500.org" target="_blank">TOP500.org</a> · <a href="https://www.olcf.ornl.gov" target="_blank">ORNL</a> · <a href="https://x.ai" target="_blank">xAI</a></p>
+  <p style="margin-top:.75rem;color:#2d3748">Last updated March 2026</p>
+</footer>
+
+<script src="../../assets/d3.v7.min.js" onerror="void(0)"></script>
+<script src="assets/charts.js"></script>
+<script>
+function togglePipeline(header) {
+  header.classList.toggle('open');
+  header.nextElementSibling.classList.toggle('open');
+}
+
+function initCharts() {
+  if (typeof d3 === 'undefined') return;
+  buildChart1('chart1');
+  buildChart2('chart2');
+  buildChart3('chart3');
+  buildChart4('chart4');
+}
+
+window.addEventListener('load', initCharts);
+
+const ro = new ResizeObserver(() => initCharts());
+ro.observe(document.body);
+</script>
+</body>
+</html>

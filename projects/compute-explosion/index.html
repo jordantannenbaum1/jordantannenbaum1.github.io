@@ -179,10 +179,10 @@
     <div class="callout callout-warn"><p><strong>Methodological note:</strong> FLOPs are not a measure of "intelligence." They measure raw compute consumed. Comparisons between neuron counts and FLOPs are analogical, not equivalent — the charts in section 4 are explicitly labeled as scale comparisons. Projected values carry ±1 order of magnitude uncertainty.</p></div>
     <h3>Four charts, one argument</h3>
     <div style="margin:1.5rem 0">
-      <div class="timeline-item"><div class="timeline-year">Chart 1</div><div class="timeline-content"><div class="timeline-label">Maximum computational power, 1945–2026</div><div class="timeline-desc">Peak FLOP/s across supercomputers and AI training runs — the inflection where AI diverges from HPC</div></div></div>
-      <div class="timeline-item"><div class="timeline-year">Chart 2</div><div class="timeline-content"><div class="timeline-label">Biological neurons vs. silicon FLOPs (dual scale)</div><div class="timeline-desc">Side-by-side: the full range of biological intelligence against the full range of silicon compute</div></div></div>
-      <div class="timeline-item"><div class="timeline-year">Chart 3</div><div class="timeline-content"><div class="timeline-label">Biological vs. machine — same scale</div><div class="timeline-desc">Both axes forced to identical range. Nothing biological exists above 10¹⁵. Grok-3 sits at 10²⁷.</div></div></div>
-      <div class="timeline-item"><div class="timeline-year">Chart 4</div><div class="timeline-content"><div class="timeline-label">The Big Bang vs. the compute explosion</div><div class="timeline-desc">Cosmic expansion alongside compute growth. The Big Bang took 13.8B years to do what computation did in 80.</div></div></div>
+      <div class="timeline-item"><div class="timeline-year">Chart 1</div><div class="timeline-content"><div class="timeline-label">Maximum computational power, 1945–2026</div><div class="timeline-desc">Peak FLOP/s across supercomputers and AI training runs — AI diverges from HPC by 9 orders of magnitude after 2020</div></div></div>
+      <div class="timeline-item"><div class="timeline-year">Chart 2</div><div class="timeline-content"><div class="timeline-label">Biological intelligence vs. machine computation</div><div class="timeline-desc">Neuron counts and training FLOPs on the same log scale. Everything biological sits below 10¹⁵. Grok-3 sits at 10²⁷.</div></div></div>
+      <div class="timeline-item"><div class="timeline-year">Chart 3</div><div class="timeline-content"><div class="timeline-label">The Big Bang vs. the compute explosion</div><div class="timeline-desc">Cosmic expansion (~41 OOM in 13.8B years) vs. computation (~24 OOM in 80 years) — same scale axis</div></div></div>
+      <div class="timeline-item"><div class="timeline-year">Chart 4</div><div class="timeline-content"><div class="timeline-label">Atoms in the observable universe vs. human computation</div><div class="timeline-desc">The universe built 10⁷⁸ atoms over 13.8B years. At current doubling rates, computation could match that in ~50 years.</div></div></div>
     </div>
   </div>
 </section>
@@ -451,33 +451,33 @@ milestones <span class="sql-kw">as</span> (
 
     <div class="chart-wrap">
       <div class="chart-header">
-        <span class="chart-title">Chart 2 — Biological neurons vs. silicon FLOPs (dual scale)</span>
-        <span class="chart-tag">log scale · comparative</span>
-      </div>
-      <div class="chart-inner" id="chart2"></div>
-      <div class="chart-caption">Left: neuron count (biological). Right: total training FLOPs (silicon). Not equivalent measures — scale comparison only. Neuron counts from Azevedo et al. 2009, Herculano-Houzel 2009.</div>
-    </div>
-    <p>The biological range spans roughly 15 orders of magnitude — from a single neuron to all human neurons ever (~10¹⁵). The silicon range spans ~24 orders of magnitude (ENIAC to Grok-3). The left panel tops out at what we recognize as intelligence. The right panel has already blown past it.</p>
-
-    <div class="chart-wrap">
-      <div class="chart-header">
-        <span class="chart-title">Chart 3 — Biological intelligence vs. machine computation (same scale)</span>
+        <span class="chart-title">Chart 2 — Biological intelligence vs. machine computation</span>
         <span class="chart-tag">log scale · unified axis</span>
       </div>
-      <div class="chart-inner" id="chart3"></div>
-      <div class="chart-caption">Both biological neuron counts and silicon FLOPs on the same log₁₀ axis. Scale comparison, not equivalence. Everything biological sits below 10¹⁵. Nothing biological exists in the upper two-thirds of this chart.</div>
+      <div class="chart-inner" id="chart2"></div>
+      <div class="chart-caption">Biological neuron counts and silicon training FLOPs on the same log₁₀ axis. Scale comparison only — neurons ≠ FLOPs. Everything biological sits below 10¹⁵. Sources: Azevedo et al. 2009, Herculano-Houzel 2009, Epoch AI, xAI.</div>
     </div>
-    <p>Forced onto a single axis, the biological range occupies the bottom. The top of the chart — where Grok-3 training sits — is a region where <strong>nothing biological has ever existed</strong>. That's not editorial. It's a description of the chart's empty space.</p>
+    <p>On a single axis, the entire range of biological intelligence — from one neuron to every neuron in every human who ever lived (~10¹⁵) — occupies the bottom third of the chart. The top two-thirds is a region where <strong>nothing biological has ever existed</strong>. Grok-3's training run sits there. That's not editorial. It's a description of empty space.</p>
 
     <div class="chart-wrap">
       <div class="chart-header">
-        <span class="chart-title">Chart 4 — The Big Bang vs. the compute explosion (same scale)</span>
+        <span class="chart-title">Chart 3 — The Big Bang vs. the compute explosion</span>
         <span class="chart-tag">log scale · cosmological</span>
       </div>
-      <div class="chart-inner" id="chart4"></div>
-      <div class="chart-caption">Left: expansion of the universe, Planck length to present (~41 orders over 13.8B years). Right: computation from ENIAC to projected 2026 (~24 orders in 80 years). Sources: NIST, NASA, Epoch AI.</div>
+      <div class="chart-inner" id="chart3"></div>
+      <div class="chart-caption">Left: expansion of the observable universe, Planck length to present (~41 orders in 13.8B years). Right: computation from ENIAC to projected 2026 (~24 orders in 80 years). Sources: NIST, NASA cosmology constants, Epoch AI.</div>
     </div>
-    <p>The Big Bang expanded by 41 orders of magnitude over 13.8 billion years. Human computation expanded 24 orders in 80 years — and is still accelerating. <strong>At current rates, computation will match the full scale of cosmic expansion within centuries, not billions of years.</strong></p>
+    <p>The Big Bang expanded by ~41 orders of magnitude over 13.8 billion years. Human computation expanded ~24 orders in 80 years — and is still accelerating. Both series plotted on the same log scale. <strong>At current doubling rates, computation will match the full scale of cosmic expansion within centuries, not billions of years.</strong></p>
+
+    <div class="chart-wrap">
+      <div class="chart-header">
+        <span class="chart-title">Chart 4 — Atoms in the observable universe vs. human computation</span>
+        <span class="chart-tag">log scale · 10⁷⁸ ceiling</span>
+      </div>
+      <div class="chart-inner" id="chart4"></div>
+      <div class="chart-caption">Left: observable universe scale milestones, anchored to ~10⁷⁸ atoms today (Eddington number). Right: human computation, ENIAC to 2026. Sources: standard cosmology, Epoch AI, TOP500.org, ORNL, xAI. Note: intermediate scale values are epoch proxies, not literal atom counts.</div>
+    </div>
+    <p>The observable universe contains approximately 10⁷⁸ atoms — a number it took 13.8 billion years and every star that ever existed to produce. Human computation started at 10³·⁷ in 1946 and reached 10²⁷ by 2025: 24 orders of magnitude in 80 years. <strong>At the current doubling rate (~12 months), computation could arithmetically reach 10⁷⁸ operations within a single human lifetime.</strong> Whether that number means anything at the scale of atoms is not the point. The point is that we are scaling faster than anything in the history of physics.</p>
   </div>
 </section>
 

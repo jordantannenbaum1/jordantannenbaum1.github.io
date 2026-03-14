@@ -1,662 +1,557 @@
 // ============================================================
-// compute-scale/assets/charts.js
-// Four D3 charts for "The Compute Explosion" data story
-// Data sourced from: Epoch AI, TOP500.org, ORNL, xAI, Wikipedia
+// charts.js — The Compute Explosion
+// Data: Epoch AI, TOP500, ORNL, xAI, Wikipedia, Azevedo 2009,
+//       NIST/NASA cosmology constants
 // ============================================================
 
-// ── Shared palette ───────────────────────────────────────────
 const C = {
-  cyan:    "#00d4ff",
-  pink:    "#ff4d9d",
-  yellow:  "#ffd166",
-  green:   "#06d6a0",
-  purple:  "#a78bfa",
-  orange:  "#ff8c42",
-  dim:     "rgba(255,255,255,0.06)",
-  border:  "rgba(255,255,255,0.1)",
-  muted:   "#8892a4",
-  text:    "#e8eaf0",
-  bg:      "#0a0c10",
-  surface: "#1a1f2e",
+  cyan:   "#00d4ff",
+  pink:   "#ff4d9d",
+  yellow: "#ffd166",
+  green:  "#06d6a0",
+  border: "rgba(255,255,255,0.09)",
+  muted:  "#8892a4",
+  dim:    "#4a5568",
+  text:   "#e8eaf0",
+  bg:     "#0a0c10",
 };
 
-// ── Shared log-scale Y formatter ─────────────────────────────
 function logLabel(v) {
-  const exp = Math.round(Math.log10(v));
-  const labels = {
-    3:"1K", 4:"10K", 5:"100K", 6:"1M", 7:"10M", 8:"100M",
-    9:"1G", 10:"10G", 11:"100G", 12:"1T", 13:"10T", 14:"100T",
-    15:"1P", 16:"10P", 17:"100P", 18:"1E", 19:"10E", 20:"100E",
-    21:"1Z", 22:"10Z", 23:"100Z", 24:"1Y", 25:"10Y", 26:"100Y",
-    27:"10²⁷", 28:"10²⁸", 29:"10²⁹", 30:"10³⁰",
+  const e = Math.round(Math.log10(v));
+  const m = {
+    0:"1", 1:"10", 2:"100",
+    3:"1K", 6:"1M", 9:"1G", 12:"1T", 15:"1P", 18:"1E",
+    21:"1Z", 24:"1Y", 27:"10²⁷", 28:"10²⁸", 30:"10³⁰",
   };
-  return labels[exp] || `10^${exp}`;
+  return m[e] !== undefined ? m[e] : `10^${e}`;
 }
 
-// ── Responsive width helper ───────────────────────────────────
-function chartWidth(el) {
-  return Math.max(300, el.getBoundingClientRect().width || 700);
+function cw(id) {
+  const el = document.getElementById(id);
+  return Math.max(320, el ? el.getBoundingClientRect().width || 700 : 700);
 }
 
+function mono(sel, x, y, txt, fill, size, anchor) {
+  return sel.append("text")
+    .attr("x", x).attr("y", y)
+    .attr("fill", fill || C.muted)
+    .attr("font-size", size || "9px")
+    .attr("font-family", "JetBrains Mono, monospace")
+    .attr("text-anchor", anchor || "start")
+    .text(txt);
+}
+
+
 // ═══════════════════════════════════════════════════════════════
-// CHART 1 — Maximum Computational Power Over Time, 1945–2026
+// CHART 1 — Maximum Computational Power, 1945–2026
 // ═══════════════════════════════════════════════════════════════
-window.buildChart1 = function(containerId) {
-  const hpcData = [
-    { name:"ENIAC",         year:1945, log10:3.7,  series:"hpc" },
-    { name:"IBM 701",       year:1952, log10:5.8,  series:"hpc" },
-    { name:"CDC 6600",      year:1964, log10:6.9,  series:"hpc" },
-    { name:"Cray-1",        year:1976, log10:8.0,  series:"hpc" },
-    { name:"Cray X-MP",     year:1983, log10:9.0,  series:"hpc" },
-    { name:"Thinking Machines CM-5", year:1993, log10:11.0, series:"hpc" },
-    { name:"ASCI Red\n(1st teraFLOP)", year:1997, log10:12.0, series:"hpc" },
-    { name:"ASCI White",    year:2000, log10:12.3, series:"hpc" },
-    { name:"Earth Simulator",year:2002,log10:13.0, series:"hpc" },
-    { name:"IBM Roadrunner\n(1st petaFLOP)", year:2008, log10:15.0, series:"hpc" },
-    { name:"Tianhe-1A",     year:2010, log10:15.4, series:"hpc" },
-    { name:"Sequoia",       year:2012, log10:16.3, series:"hpc" },
-    { name:"Tianhe-2",      year:2013, log10:16.7, series:"hpc" },
-    { name:"Summit",        year:2018, log10:17.3, series:"hpc" },
-    { name:"Fugaku",        year:2020, log10:17.6, series:"hpc" },
-    { name:"Frontier\n(1st exaFLOP)", year:2022, log10:18.08, series:"hpc" },
-    { name:"Frontier AI",   year:2024, log10:18.1, series:"hpc" },
+window.buildChart1 = function(id) {
+  const hpc = [
+    {year:1945, log10:3.7,  name:"ENIAC"},
+    {year:1952, log10:5.8,  name:"IBM 701"},
+    {year:1964, log10:6.9,  name:"CDC 6600"},
+    {year:1976, log10:8.0,  name:"Cray-1"},
+    {year:1983, log10:9.0,  name:"Cray X-MP"},
+    {year:1993, log10:11.0, name:"CM-5"},
+    {year:1997, log10:12.0, name:"ASCI Red"},
+    {year:2000, log10:12.3, name:"ASCI White"},
+    {year:2002, log10:13.0, name:"Earth Sim"},
+    {year:2008, log10:15.0, name:"IBM Roadrunner"},
+    {year:2010, log10:15.4, name:"Tianhe-1A"},
+    {year:2012, log10:16.3, name:"Sequoia"},
+    {year:2013, log10:16.7, name:"Tianhe-2"},
+    {year:2018, log10:17.3, name:"Summit"},
+    {year:2020, log10:17.6, name:"Fugaku"},
+    {year:2022, log10:18.08,name:"Frontier"},
+  ];
+  const ai = [
+    {year:2012, log10:18.4, label:"AlexNet",  projected:false},
+    {year:2020, log10:23.5, label:"GPT-3",    projected:false},
+    {year:2023, log10:24.7, label:"GPT-4",    projected:false},
+    {year:2025, log10:27.0, label:"Grok-3",   projected:false},
+    {year:2026, log10:28.0, label:"~10²⁸",    projected:true },
   ];
 
-  const aiData = [
-    { name:"AlexNet\nTraining",  year:2012, log10:18.4, series:"ai", projected:false },
-    { name:"GPT-3\nTraining",    year:2020, log10:23.5, series:"ai", projected:false },
-    { name:"GPT-4\nTraining",    year:2023, log10:24.7, series:"ai", projected:false },
-    { name:"Grok-3\nTraining",   year:2025, log10:27.0, series:"ai", projected:false },
-    { name:"Grok-3 Next-gen\n(projected ~10²⁸)", year:2026, log10:28.0, series:"ai", projected:true },
-  ];
+  d3.select(`#${id}`).selectAll("*").remove();
+  const W = cw(id), H = Math.round(W * 0.58);
+  const m = {top:36, right:140, bottom:52, left:70};
+  const iw = W - m.left - m.right, ih = H - m.top - m.bottom;
 
-  const allData = [...hpcData, ...aiData];
-
-  const el = document.getElementById(containerId);
-  const W = chartWidth(el);
-  const H = Math.round(W * 0.58);
-  const margin = { top: 40, right: 160, bottom: 50, left: 80 };
-  const iw = W - margin.left - margin.right;
-  const ih = H - margin.top - margin.bottom;
-
-  d3.select(`#${containerId}`).selectAll("*").remove();
-
-  const svg = d3.select(`#${containerId}`)
-    .append("svg")
+  const svg = d3.select(`#${id}`).append("svg")
     .attr("width", W).attr("height", H)
-    .style("background", C.bg)
-    .style("border-radius", "8px");
+    .style("background", C.bg).style("border-radius", "8px");
+  const g = svg.append("g").attr("transform", `translate(${m.left},${m.top})`);
 
-  const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
-
-  // Scales
   const x = d3.scaleLinear().domain([1945, 2027]).range([0, iw]);
   const y = d3.scaleLog().base(10).domain([1e3, 1e30]).range([ih, 0]).clamp(true);
 
-  // Background era bands
-  const eras = [
-    { label:"MAINFRAME ERA", x0:1945, x1:1965 },
-    { label:"SUPERCOMPUTER ERA", x0:1965, x1:1995 },
-    { label:"MODERN HPC ERA",   x0:1995, x1:2015 },
-    { label:"AI ERA",           x0:2015, x1:2027 },
-  ];
-  const eraColors = ["rgba(0,212,255,0.03)","rgba(0,212,255,0.06)","rgba(0,212,255,0.03)","rgba(255,77,157,0.06)"];
-  eras.forEach((era, i) => {
-    g.append("rect")
-      .attr("x", x(era.x0)).attr("y", 0)
-      .attr("width", x(era.x1) - x(era.x0)).attr("height", ih)
-      .attr("fill", eraColors[i]);
-    g.append("text")
-      .attr("x", (x(era.x0) + x(era.x1)) / 2).attr("y", ih + 38)
-      .attr("text-anchor", "middle")
-      .attr("fill", C.muted).attr("font-size", "9px")
-      .attr("font-family", "JetBrains Mono, monospace")
-      .attr("letter-spacing", "0.1em")
-      .text(era.label);
+  // Era bands
+  [
+    [1945, 1965, "MAINFRAME ERA",    "rgba(0,212,255,0.03)"],
+    [1965, 1995, "SUPERCOMPUTER ERA","rgba(0,212,255,0.055)"],
+    [1995, 2015, "HPC ERA",          "rgba(0,212,255,0.03)"],
+    [2015, 2027, "AI ERA",           "rgba(255,77,157,0.055)"],
+  ].forEach(([x0, x1, label, fill]) => {
+    g.append("rect").attr("x", x(x0)).attr("y", 0)
+      .attr("width", x(x1)-x(x0)).attr("height", ih).attr("fill", fill);
+    mono(g, (x(x0)+x(x1))/2, ih+42, label, C.dim, "8px", "middle")
+      .attr("letter-spacing","0.1em");
   });
 
-  // Grid lines
-  const yTicks = [1e3,1e6,1e9,1e12,1e15,1e18,1e21,1e24,1e27,1e30];
-  yTicks.forEach(v => {
-    g.append("line")
-      .attr("x1", 0).attr("x2", iw)
-      .attr("y1", y(v)).attr("y2", y(v))
-      .attr("stroke", C.border).attr("stroke-width", 0.5);
+  // Grid
+  [1e3,1e6,1e9,1e12,1e15,1e18,1e21,1e24,1e27,1e30].forEach(v => {
+    g.append("line").attr("x1",0).attr("x2",iw)
+      .attr("y1",y(v)).attr("y2",y(v))
+      .attr("stroke",C.border).attr("stroke-width",0.5);
   });
 
   // Axes
-  g.append("g").attr("transform", `translate(0,${ih})`)
+  g.append("g").attr("transform",`translate(0,${ih})`)
     .call(d3.axisBottom(x).tickFormat(d3.format("d")).ticks(10))
     .call(a => { a.select(".domain").remove(); a.selectAll("line").remove(); })
-    .call(a => a.selectAll("text").attr("fill", C.muted).attr("font-size", "11px").attr("font-family","JetBrains Mono, monospace"));
+    .call(a => a.selectAll("text").attr("fill",C.muted).attr("font-size","10px")
+      .attr("font-family","JetBrains Mono, monospace"));
 
   g.append("g")
-    .call(d3.axisLeft(y).tickValues(yTicks).tickFormat(logLabel))
+    .call(d3.axisLeft(y)
+      .tickValues([1e3,1e6,1e9,1e12,1e15,1e18,1e21,1e24,1e27,1e30])
+      .tickFormat(logLabel))
     .call(a => { a.select(".domain").remove(); a.selectAll("line").remove(); })
-    .call(a => a.selectAll("text").attr("fill", C.muted).attr("font-size", "10px").attr("font-family","JetBrains Mono, monospace"));
+    .call(a => a.selectAll("text").attr("fill",C.muted).attr("font-size","10px")
+      .attr("font-family","JetBrains Mono, monospace"));
 
-  g.append("text").attr("transform","rotate(-90)").attr("x", -ih/2).attr("y", -62)
-    .attr("text-anchor","middle").attr("fill", C.muted).attr("font-size","11px")
-    .attr("font-family","JetBrains Mono, monospace")
+  g.append("text").attr("transform","rotate(-90)").attr("x",-ih/2).attr("y",-58)
+    .attr("text-anchor","middle").attr("fill",C.muted)
+    .attr("font-size","10px").attr("font-family","JetBrains Mono, monospace")
     .text("Peak FLOPS (log scale)");
 
-  // HPC line
-  const hpcLine = d3.line().x(d => x(d.year)).y(d => y(Math.pow(10, d.log10))).curve(d3.curveMonotoneX);
-  g.append("path").datum(hpcData).attr("fill","none")
-    .attr("stroke", C.cyan).attr("stroke-width", 1.5).attr("d", hpcLine);
+  // HPC line + dots
+  const hLine = d3.line().x(d=>x(d.year)).y(d=>y(Math.pow(10,d.log10))).curve(d3.curveMonotoneX);
+  g.append("path").datum(hpc).attr("fill","none").attr("stroke",C.cyan).attr("stroke-width",1.5).attr("d",hLine);
+  hpc.forEach(d => {
+    g.append("circle").attr("cx",x(d.year)).attr("cy",y(Math.pow(10,d.log10)))
+      .attr("r",3.5).attr("fill",C.cyan).attr("stroke",C.bg).attr("stroke-width",1.5);
+  });
+
+  // HPC milestone labels (4 key points only)
+  [
+    {year:1945, log10:3.7,  lines:["ENIAC"]},
+    {year:1997, log10:12.0, lines:["ASCI Red","(1st TFLOP)"]},
+    {year:2008, log10:15.0, lines:["Roadrunner","(1st PFLOP)"]},
+    {year:2022, log10:18.08,lines:["Frontier","(1st EFLOP)"]},
+  ].forEach(d => {
+    const cx=x(d.year), cy=y(Math.pow(10,d.log10));
+    d.lines.forEach((line,i) => mono(g, cx+7, cy-8+i*11, line, C.cyan, "9px"));
+  });
 
   // AI line (solid)
-  const aiSolid = aiData.filter(d => !d.projected);
-  const aiLineGen = d3.line().x(d => x(d.year)).y(d => y(Math.pow(10, d.log10))).curve(d3.curveMonotoneX);
-  g.append("path").datum(aiSolid).attr("fill","none")
-    .attr("stroke", C.pink).attr("stroke-width", 2).attr("d", aiLineGen);
+  const aiSolid = ai.filter(d=>!d.projected);
+  const aiLine = d3.line().x(d=>x(d.year)).y(d=>y(Math.pow(10,d.log10))).curve(d3.curveMonotoneX);
+  g.append("path").datum(aiSolid).attr("fill","none").attr("stroke",C.pink).attr("stroke-width",2).attr("d",aiLine);
 
-  // AI projected dashed
-  const lastSolid = aiSolid[aiSolid.length - 1];
-  const projPoint = aiData.find(d => d.projected);
-  if (projPoint) {
+  // Projected dashed
+  const last = aiSolid[aiSolid.length-1], proj = ai.find(d=>d.projected);
+  if (proj) {
     g.append("line")
-      .attr("x1", x(lastSolid.year)).attr("y1", y(Math.pow(10, lastSolid.log10)))
-      .attr("x2", x(projPoint.year)).attr("y2", y(Math.pow(10, projPoint.log10)))
-      .attr("stroke", C.pink).attr("stroke-width", 1.5).attr("stroke-dasharray","6,4").attr("opacity",0.6);
+      .attr("x1",x(last.year)).attr("y1",y(Math.pow(10,last.log10)))
+      .attr("x2",x(proj.year)).attr("y2",y(Math.pow(10,proj.log10)))
+      .attr("stroke",C.pink).attr("stroke-width",1.5).attr("stroke-dasharray","6,4").attr("opacity",0.55);
   }
 
-  // HPC dots
-  hpcData.forEach(d => {
-    g.append("circle").attr("cx", x(d.year)).attr("cy", y(Math.pow(10, d.log10)))
-      .attr("r", 4).attr("fill", C.cyan).attr("stroke", C.bg).attr("stroke-width", 1.5);
+  // AI dots
+  ai.forEach(d => {
+    const cx=x(d.year), cy=y(Math.pow(10,d.log10));
+    g.append("circle").attr("cx",cx).attr("cy",cy)
+      .attr("r",d.projected?5:6)
+      .attr("fill",d.projected?"none":C.pink)
+      .attr("stroke",C.pink).attr("stroke-width",d.projected?1.5:0)
+      .attr("stroke-dasharray",d.projected?"4,2":"none");
   });
 
-  // AI dots + labels
-  const labeledAI = ["AlexNet\nTraining","GPT-3\nTraining","GPT-4\nTraining","Grok-3\nTraining"];
-  aiData.forEach(d => {
-    const cx = x(d.year), cy = y(Math.pow(10, d.log10));
-    g.append("circle").attr("cx", cx).attr("cy", cy)
-      .attr("r", d.projected ? 5 : 6)
-      .attr("fill", d.projected ? "none" : C.pink)
-      .attr("stroke", C.pink).attr("stroke-width", d.projected ? 1.5 : 0)
-      .attr("stroke-dasharray", d.projected ? "4,2" : "none");
-
-    if (labeledAI.includes(d.name) || d.projected) {
-      const lines = d.name.split("\n");
-      const labelY = cy - 14;
-      lines.forEach((line, i) => {
-        g.append("text").attr("x", cx + 10).attr("y", labelY + i * 13)
-          .attr("fill", d.projected ? C.muted : C.pink)
-          .attr("font-size", "9px").attr("font-family","JetBrains Mono, monospace")
-          .text(line);
-      });
-    }
+  // AI labels — 3 key points only to avoid overlap
+  [{year:2012,log10:18.4,label:"AlexNet"},
+   {year:2020,log10:23.5,label:"GPT-3"},
+   {year:2025,log10:27.0,label:"Grok-3"},
+  ].forEach(d => {
+    mono(g, x(d.year)+9, y(Math.pow(10,d.log10))+4, d.label, C.pink, "9px");
   });
 
-  // Label key HPC milestones
-  const hpcLabeled = ["ENIAC","ASCI Red\n(1st teraFLOP)","IBM Roadrunner\n(1st petaFLOP)","Frontier\n(1st exaFLOP)"];
-  hpcData.filter(d => hpcLabeled.includes(d.name)).forEach(d => {
-    const lines = d.name.split("\n");
-    const cx = x(d.year), cy = y(Math.pow(10, d.log10));
-    lines.forEach((line, i) => {
-      g.append("text").attr("x", cx + 8).attr("y", cy - 8 + i * 12)
-        .attr("fill", C.cyan).attr("font-size","9px").attr("font-family","JetBrains Mono, monospace")
-        .text(line);
-    });
-  });
-
-  // 7 orders of magnitude annotation arrow
-  const y1 = y(Math.pow(10, 18.08)), y2 = y(Math.pow(10, 27));
-  const ax = x(2024) + 30;
-  g.append("line").attr("x1",ax).attr("y1",y1).attr("x2",ax).attr("y2",y2)
-    .attr("stroke",C.yellow).attr("stroke-width",1).attr("marker-end","url(#arrowY)");
-  g.append("text").attr("x",ax+8).attr("y",(y1+y2)/2)
-    .attr("fill",C.yellow).attr("font-size","9px").attr("font-family","JetBrains Mono, monospace")
-    .text("9 orders");
-  g.append("text").attr("x",ax+8).attr("y",(y1+y2)/2+12)
-    .attr("fill",C.yellow).attr("font-size","9px").attr("font-family","JetBrains Mono, monospace")
-    .text("of magnitude");
-
-  svg.append("defs").append("marker").attr("id","arrowY")
+  // 9 OOM gap annotation
+  const ay1=y(Math.pow(10,18.08)), ay2=y(Math.pow(10,27)), ax=x(2023.5)+28;
+  svg.append("defs").append("marker").attr("id","arr1")
     .attr("viewBox","0 0 10 10").attr("refX",5).attr("refY",5)
-    .attr("markerWidth",6).attr("markerHeight",6).attr("orient","auto-start-reverse")
+    .attr("markerWidth",5).attr("markerHeight",5).attr("orient","auto-start-reverse")
     .append("path").attr("d","M0,0 L10,5 L0,10 Z").attr("fill",C.yellow);
+  g.append("line").attr("x1",ax).attr("y1",ay1).attr("x2",ax).attr("y2",ay2)
+    .attr("stroke",C.yellow).attr("stroke-width",1).attr("marker-end","url(#arr1)");
+  mono(g, ax+5, (ay1+ay2)/2-5, "9 OOM", C.yellow, "9px");
+  mono(g, ax+5, (ay1+ay2)/2+7, "gap", C.yellow, "9px");
 
   // Legend
-  const leg = svg.append("g").attr("transform",`translate(${margin.left},${margin.top - 28})`);
-  [[C.cyan,"Supercomputers / HPC"],[C.pink,"AI Training Runs"],[C.pink,"Projected / Estimated"]].forEach(([col, label], i) => {
-    const lx = i * 190;
-    if (i === 2) {
-      leg.append("line").attr("x1",lx).attr("y1",6).attr("x2",lx+20).attr("y2",6)
-        .attr("stroke",col).attr("stroke-width",1.5).attr("stroke-dasharray","5,3");
-    } else {
-      leg.append("rect").attr("x",lx).attr("y",0).attr("width",20).attr("height",10)
-        .attr("rx",2).attr("fill",col).attr("opacity",0.8);
-    }
-    leg.append("text").attr("x",lx+26).attr("y",9)
-      .attr("fill",C.muted).attr("font-size","10px").attr("font-family","JetBrains Mono, monospace")
-      .text(label);
+  const lg = svg.append("g").attr("transform",`translate(${m.left},10)`);
+  [[C.cyan,"Supercomputers / HPC"],[C.pink,"AI Training Runs"]].forEach(([col,lbl],i) => {
+    lg.append("rect").attr("x",i*190).attr("y",0).attr("width",18).attr("height",9)
+      .attr("rx",2).attr("fill",col).attr("opacity",0.85);
+    mono(lg, i*190+24, 8, lbl, C.muted, "10px");
   });
 };
 
 
 // ═══════════════════════════════════════════════════════════════
-// CHART 2 — Biological Neurons vs. Silicon FLOPs (dual scale)
+// CHART 2 — Biological Intelligence vs. Machine Computation (same log scale)
+// Sources: Epoch AI (training FLOPs), Azevedo et al. 2009 (neuron counts),
+//          Herculano-Houzel 2009, TOP500.org, ORNL, xAI
 // ═══════════════════════════════════════════════════════════════
-window.buildChart2 = function(containerId) {
-  const bioData = [
-    { name:"Single Neuron",       log10:0,  desc:"1 neuron — a biological switch" },
-    { name:"C. elegans Worm",     log10:2.5, desc:"302 neurons — first organism fully mapped" },
-    { name:"Single Ant",          log10:5.4, desc:"250,000 neurons — follows pheromones only" },
-    { name:"Honeybee",            log10:6.0, desc:"1 million neurons" },
-    { name:"Crow / Octopus",      log10:9.2, desc:"~1.5B neurons — tool use, problem solving" },
-    { name:"Human",               log10:10.9, desc:"~86B neurons — language, art, science" },
-    { name:"Chimpanzee",          log10:10.5, desc:"~28B neurons" },
-    { name:"Ant Colony (1M ants)",log10:11.4, desc:"250M×1M neurons — wages war, farms" },
-    { name:"All Humans Ever Lived",log10:14.9,desc:"est. 100B humans × 86B neurons" },
+window.buildChart2 = function(id) {
+  const bio = [
+    {log10:0,    label:"Single Neuron",    show:true },
+    {log10:2.5,  label:"C. elegans (302)", show:true },
+    {log10:5.4,  label:"Single Ant",       show:true },
+    {log10:6.0,  label:null,               show:false}, // 0.6 OOM from Ant — skip label
+    {log10:9.2,  label:"Crow / Octopus",   show:true },
+    {log10:10.5, label:null,               show:false}, // 0.4 OOM from Human — skip label
+    {log10:10.9, label:"Human (86B)",      show:true },
+    {log10:11.4, label:null,               show:false}, // 0.5 OOM from Human — skip label
+    {log10:14.9, label:"All Humans Ever",  show:true },
+  ];
+  const silicon = [
+    {log10:3.7,  color:C.green, label:"ENIAC (1946)"},
+    {log10:8.0,  color:C.green, label:null},
+    {log10:12.0, color:C.green, label:"ASCI Red (1997)"},
+    {log10:15.0, color:C.green, label:"Roadrunner (2008)"},
+    {log10:18.08,color:C.green, label:"Frontier (2022)"},
+    {log10:23.5, color:C.pink,  label:null},
+    {log10:24.7, color:C.pink,  label:"GPT-4 Training"},
+    {log10:25.3, color:C.pink,  label:null},
+    {log10:27.0, color:C.pink,  label:"Grok-3 Training"},
   ];
 
-  const siliconData = [
-    { name:"ENIAC (1946)",        log10:3.7,  color:C.green },
-    { name:"Cray-1 (1976)",       log10:8.0,  color:C.green },
-    { name:"ASCI Red (1997)",     log10:12.0, color:C.green },
-    { name:"IBM Roadrunner (2008)",log10:15.0,color:C.green },
-    { name:"IBM Summit (2018)",   log10:17.3, color:C.green },
-    { name:"Frontier (2022)",     log10:18.08,color:C.green },
-    { name:"Frontier AI (2024)",  log10:18.1, color:C.green },
-    { name:"GPT-3 Training (2020)",log10:23.5,color:C.pink },
-    { name:"GPT-4 Training (2023)",log10:24.7,color:C.pink },
-    { name:"Gemini Ultra (2024)", log10:25.3, color:C.pink },
-    { name:"Grok-3 Training (2025)",log10:27.0,color:C.pink },
-    { name:"2026 Frontier (proj.)",log10:28.0,color:C.pink, projected:true },
-  ];
+  d3.select(`#${id}`).selectAll("*").remove();
+  const W = cw(id), H = Math.round(W * 0.78);
+  const m = {top:36, right:20, bottom:14, left:16};
+  const pW = (W - m.left - m.right - 44) / 2;
+  const ih = H - m.top - m.bottom;
+  const bH = 12;
 
-  const el = document.getElementById(containerId);
-  const W = chartWidth(el);
-  const H = Math.round(W * 0.62);
-  const margin = { top: 30, right: 20, bottom: 20, left: 20 };
-  const panelW = (W - margin.left - margin.right - 60) / 2;
-  const ih = H - margin.top - margin.bottom;
-  const barH = 14, barGap = 4;
+  const svg = d3.select(`#${id}`).append("svg").attr("width",W).attr("height",H)
+    .style("background",C.bg).style("border-radius","8px");
 
-  d3.select(`#${containerId}`).selectAll("*").remove();
+  const y = d3.scaleLog().base(10).domain([1, 1e30]).range([ih-6, 6]);
 
-  const svg = d3.select(`#${containerId}`)
-    .append("svg").attr("width", W).attr("height", H)
-    .style("background", C.bg).style("border-radius","8px");
+  mono(svg, m.left+pW/2, 22, "Biological Intelligence (Neuron Count)", C.cyan, "11px", "middle")
+    .attr("font-weight","500");
+  mono(svg, W-m.right-pW/2, 22, "Computational Power (Training FLOPs)", C.pink, "11px", "middle")
+    .attr("font-weight","500");
 
-  // Panel titles
-  svg.append("text").attr("x", margin.left + panelW/2).attr("y", 22)
-    .attr("text-anchor","middle").attr("fill", C.cyan).attr("font-size","12px")
-    .attr("font-family","JetBrains Mono, monospace").attr("font-weight","500")
-    .text("Biological Intelligence Scale");
+  // ── LEFT: bio ──
+  const bG = svg.append("g").attr("transform",`translate(${m.left},${m.top})`);
+  const barW = pW - 150;
 
-  svg.append("text").attr("x", W - margin.right - panelW/2).attr("y", 22)
-    .attr("text-anchor","middle").attr("fill", C.cyan).attr("font-size","12px")
-    .attr("font-family","JetBrains Mono, monospace").attr("font-weight","500")
-    .text("Computational Power Scale");
-
-  // Y scale shared
-  const y = d3.scaleLog().base(10).domain([1, 1e30]).range([ih - 10, 10]);
-
-  // LEFT — bio bars
-  const bioG = svg.append("g").attr("transform",`translate(${margin.left},${margin.top})`);
-  const bioX = d3.scaleLinear().domain([0,1]).range([0, panelW - 120]);
-
-  bioData.forEach(d => {
-    const cy = y(Math.pow(10, d.log10));
-    bioG.append("rect")
-      .attr("x", 60).attr("y", cy - barH/2)
-      .attr("width", bioX(0.85)).attr("height", barH)
-      .attr("fill", d.name.includes("Human") && !d.name.includes("All") ? C.cyan : C.cyan)
-      .attr("opacity", d.name.includes("All") ? 0.9 : 0.5)
-      .attr("rx", 2);
-    bioG.append("text").attr("x", 60 + bioX(0.88)).attr("y", cy + 4)
-      .attr("fill", C.muted).attr("font-size","9px").attr("font-family","JetBrains Mono, monospace")
-      .text(d.name.length > 20 ? d.name.slice(0,20) : d.name);
+  // "nothing biological here" zone
+  const eTop=y(1e30), eBot=y(1e15);
+  bG.append("rect").attr("x",54).attr("y",eTop).attr("width",barW).attr("height",eBot-eTop)
+    .attr("fill","rgba(255,255,255,0.015)").attr("rx",3);
+  ["— nothing biological","  exists above here —"].forEach((t,i) => {
+    mono(bG, 54+barW/2, (eTop+eBot)/2-7+i*13, t, "rgba(255,255,255,0.2)", "9px", "middle")
+      .attr("font-style","italic");
   });
 
-  // Bio Y axis ticks
+  bio.forEach(d => {
+    const cy = y(Math.pow(10,d.log10));
+    bG.append("rect").attr("x",54).attr("y",cy-bH/2).attr("width",barW).attr("height",bH)
+      .attr("fill",C.cyan).attr("opacity",d.log10>=14?0.9:0.5).attr("rx",2);
+    if (d.label) mono(bG, 54+barW+5, cy+4, d.label, C.muted, "9px");
+  });
+
   [1,1e3,1e6,1e9,1e12,1e15].forEach(v => {
-    const ty = y(v);
-    bioG.append("line").attr("x1",55).attr("x2",60).attr("y1",ty).attr("y2",ty)
+    const ty=y(v);
+    bG.append("line").attr("x1",48).attr("x2",54).attr("y1",ty).attr("y2",ty)
       .attr("stroke",C.muted).attr("stroke-width",0.5);
-    bioG.append("text").attr("x",52).attr("y",ty+4)
-      .attr("text-anchor","end").attr("fill",C.muted).attr("font-size","9px")
-      .attr("font-family","JetBrains Mono, monospace").text(logLabel(v));
+    mono(bG, 46, ty+4, logLabel(v), C.muted, "9px", "end");
   });
 
-  // RIGHT — silicon bars
-  const silG = svg.append("g").attr("transform",`translate(${W - margin.right - panelW},${margin.top})`);
+  // ── RIGHT: silicon ──
+  const sG = svg.append("g").attr("transform",`translate(${W-m.right-pW},${m.top})`);
+  const sBarW = pW - 164;
 
-  siliconData.forEach(d => {
-    const cy = y(Math.pow(10, d.log10));
-    silG.append("rect")
-      .attr("x", 0).attr("y", cy - barH/2)
-      .attr("width", panelW - 160).attr("height", barH)
-      .attr("fill", d.color)
-      .attr("opacity", d.projected ? 0.4 : 0.65)
-      .attr("rx", 2)
-      .attr("stroke", d.projected ? d.color : "none")
-      .attr("stroke-dasharray", d.projected ? "4,2" : "none")
-      .attr("stroke-width", d.projected ? 1 : 0);
-    silG.append("text").attr("x", panelW - 155).attr("y", cy + 4)
-      .attr("fill", C.muted).attr("font-size","9px").attr("font-family","JetBrains Mono, monospace")
-      .text(d.name.length > 24 ? d.name.slice(0,24) : d.name);
+  silicon.forEach(d => {
+    const cy = y(Math.pow(10,d.log10));
+    sG.append("rect").attr("x",0).attr("y",cy-bH/2).attr("width",sBarW).attr("height",bH)
+      .attr("fill",d.color).attr("opacity",0.65).attr("rx",2);
+    if (d.label) mono(sG, sBarW+5, cy+4, d.label, C.muted, "9px");
   });
 
-  // Silicon Y axis
-  [1e3,1e6,1e9,1e12,1e15,1e18,1e21,1e24,1e27,1e30].forEach(v => {
-    const ty = y(v);
-    silG.append("line").attr("x1",-5).attr("x2",0).attr("y1",ty).attr("y2",ty)
-      .attr("stroke",C.muted).attr("stroke-width",0.5);
-    silG.append("text").attr("x",-8).attr("y",ty+4)
-      .attr("text-anchor","end").attr("fill",C.muted).attr("font-size","9px")
-      .attr("font-family","JetBrains Mono, monospace").text(logLabel(v));
-  });
-
-  // Annotation: gap
-  const gapY1 = margin.top + y(1e15), gapY2 = margin.top + y(1e27);
-  const gapX = W/2 + 10;
-  svg.append("line").attr("x1",gapX).attr("y1",gapY1).attr("x2",gapX).attr("y2",gapY2)
-    .attr("stroke",C.yellow).attr("stroke-width",1).attr("stroke-dasharray","3,3");
-  svg.append("text").attr("x",gapX+4).attr("y",(gapY1+gapY2)/2 - 10)
-    .attr("fill",C.yellow).attr("font-size","9px").attr("font-family","JetBrains Mono, monospace")
-    .text("~12 orders");
-  svg.append("text").attr("x",gapX+4).attr("y",(gapY1+gapY2)/2+2)
-    .attr("fill",C.yellow).attr("font-size","9px").attr("font-family","JetBrains Mono, monospace")
-    .text("of magnitude");
-  svg.append("text").attr("x",gapX+4).attr("y",(gapY1+gapY2)/2+14)
-    .attr("fill",C.yellow).attr("font-size","9px").attr("font-family","JetBrains Mono, monospace")
-    .text("Frontier → Grok-3");
-
-  // Footer note
-  svg.append("text").attr("x",W/2).attr("y",H-6).attr("text-anchor","middle")
-    .attr("fill",C.muted).attr("font-size","9px").attr("font-family","JetBrains Mono, monospace")
-    .text("Neurons ≠ FLOPs — this is a scale comparison, not an equivalence");
-};
-
-
-// ═══════════════════════════════════════════════════════════════
-// CHART 3 — Biological Intelligence vs. Machine Computation — Same Scale
-// ═══════════════════════════════════════════════════════════════
-window.buildChart3 = function(containerId) {
-  const bioData = [
-    { name:"Single Neuron",         log10:0,   desc:"1 neuron" },
-    { name:"C. elegans Worm",       log10:2.5, desc:"302 neurons" },
-    { name:"Single Ant",            log10:5.4, desc:"250,000 neurons" },
-    { name:"Honeybee",              log10:6.0, desc:"1M neurons" },
-    { name:"Crow / Octopus",        log10:9.2, desc:"~1.5B neurons" },
-    { name:"Chimpanzee",            log10:10.5,desc:"~28B neurons" },
-    { name:"Human",                 log10:10.9,desc:"~86B neurons" },
-    { name:"Ant Colony (1M ants)",  log10:11.4,desc:"~250M neurons total" },
-    { name:"All Humans Ever Lived", log10:14.9,desc:"est. 100B × 86B neurons" },
-  ];
-
-  const siliconData = [
-    { name:"ENIAC (1946)",          log10:3.7,  color:C.green, projected:false },
-    { name:"Cray-1 (1976)",         log10:8.0,  color:C.green, projected:false },
-    { name:"ASCI Red (1997)",       log10:12.0, color:C.green, projected:false },
-    { name:"IBM Roadrunner (2008)", log10:15.0, color:C.green, projected:false },
-    { name:"IBM Summit (2018)",     log10:17.3, color:C.green, projected:false },
-    { name:"Frontier (2022)",       log10:18.08,color:C.green, projected:false },
-    { name:"Frontier AI (2024)",    log10:18.1, color:C.green, projected:false },
-    { name:"GPT-3 Training (2020)", log10:23.5, color:C.pink,  projected:false },
-    { name:"GPT-4 Training (2023)", log10:24.7, color:C.pink,  projected:false },
-    { name:"Gemini Ultra (2024)",   log10:25.3, color:C.pink,  projected:false },
-    { name:"Grok-3 Training (2025)",log10:27.0, color:C.pink,  projected:false },
-    { name:"2026 Frontier (proj.)", log10:28.0, color:C.pink,  projected:true  },
-  ];
-
-  const el = document.getElementById(containerId);
-  const W = chartWidth(el);
-  const H = Math.round(W * 0.72);
-  const margin = { top: 40, right: 20, bottom: 20, left: 20 };
-  const panelW = (W - margin.left - margin.right - 40) / 2;
-  const ih = H - margin.top - margin.bottom;
-  const barH = 13;
-
-  d3.select(`#${containerId}`).selectAll("*").remove();
-
-  const svg = d3.select(`#${containerId}`)
-    .append("svg").attr("width",W).attr("height",H)
-    .style("background",C.bg).style("border-radius","8px");
-
-  // Shared Y scale — same range both panels
-  const y = d3.scaleLog().base(10).domain([1, 1e30]).range([ih - 5, 5]);
-
-  // Titles
-  svg.append("text").attr("x", margin.left + panelW/2).attr("y", 22)
-    .attr("text-anchor","middle").attr("fill",C.cyan)
-    .attr("font-size","11px").attr("font-family","JetBrains Mono, monospace").attr("font-weight","500")
-    .text("Biological Intelligence (Neuron Count)");
-
-  svg.append("text").attr("x", W - margin.right - panelW/2).attr("y", 22)
-    .attr("text-anchor","middle").attr("fill",C.cyan)
-    .attr("font-size","11px").attr("font-family","JetBrains Mono, monospace").attr("font-weight","500")
-    .text("Computational Power (Training FLOPs)");
-
-  // LEFT PANEL
-  const bioG = svg.append("g").attr("transform",`translate(${margin.left},${margin.top})`);
-
-  // "nothing biological exists here" zone
-  const emptyTop = y(1e30), emptyBot = y(1e15);
-  bioG.append("rect").attr("x",60).attr("y",emptyTop)
-    .attr("width",panelW-130).attr("height",emptyBot-emptyTop)
-    .attr("fill","rgba(255,255,255,0.015)").attr("rx",4);
-  bioG.append("text").attr("x", 60 + (panelW-130)/2).attr("y",(emptyTop+emptyBot)/2 - 8)
-    .attr("text-anchor","middle").attr("fill","rgba(255,255,255,0.2)")
-    .attr("font-size","10px").attr("font-family","JetBrains Mono, monospace").attr("font-style","italic")
-    .text("— nothing biological");
-  bioG.append("text").attr("x", 60 + (panelW-130)/2).attr("y",(emptyTop+emptyBot)/2 + 6)
-    .attr("text-anchor","middle").attr("fill","rgba(255,255,255,0.2)")
-    .attr("font-size","10px").attr("font-family","JetBrains Mono, monospace").attr("font-style","italic")
-    .text("exists here —");
-
-  // Bio bars
-  bioData.forEach(d => {
-    const cy = y(Math.pow(10, d.log10));
-    bioG.append("rect").attr("x",60).attr("y",cy-barH/2)
-      .attr("width",panelW-130).attr("height",barH)
-      .attr("fill",C.cyan).attr("opacity",d.name.includes("All") ? 0.9 : 0.5).attr("rx",2);
-    bioG.append("text").attr("x",60+(panelW-128)).attr("y",cy+4)
-      .attr("fill",C.muted).attr("font-size","8px").attr("font-family","JetBrains Mono, monospace")
-      .text(d.name.length > 22 ? d.name.slice(0,21)+"…" : d.name);
-  });
-
-  // Y axis LEFT
   [1,1e3,1e6,1e9,1e12,1e15,1e18,1e21,1e24,1e27,1e30].forEach(v => {
-    const ty = y(v);
-    bioG.append("line").attr("x1",55).attr("x2",60).attr("y1",ty).attr("y2",ty)
+    const ty=y(v);
+    sG.append("line").attr("x1",-5).attr("x2",0).attr("y1",ty).attr("y2",ty)
       .attr("stroke",C.border).attr("stroke-width",0.5);
-    bioG.append("text").attr("x",52).attr("y",ty+4)
-      .attr("text-anchor","end").attr("fill",C.muted).attr("font-size","8px")
-      .attr("font-family","JetBrains Mono, monospace").text(logLabel(v));
+    mono(sG, -8, ty+4, logLabel(v), C.muted, "9px", "end");
   });
 
-  // RIGHT PANEL
-  const silG = svg.append("g").attr("transform",`translate(${W-margin.right-panelW},${margin.top})`);
-
-  siliconData.forEach(d => {
-    const cy = y(Math.pow(10, d.log10));
-    silG.append("rect").attr("x",0).attr("y",cy-barH/2)
-      .attr("width",panelW-150).attr("height",barH)
-      .attr("fill",d.color).attr("opacity",d.projected ? 0.35 : 0.65).attr("rx",2);
-    silG.append("text").attr("x",panelW-146).attr("y",cy+4)
-      .attr("fill",C.muted).attr("font-size","8px").attr("font-family","JetBrains Mono, monospace")
-      .text(d.name.length > 24 ? d.name.slice(0,23)+"…" : d.name);
-  });
-
-  // Y axis RIGHT
-  [1,1e3,1e6,1e9,1e12,1e15,1e18,1e21,1e24,1e27,1e30].forEach(v => {
-    const ty = y(v);
-    silG.append("line").attr("x1",-5).attr("x2",0).attr("y1",ty).attr("y2",ty)
-      .attr("stroke",C.border).attr("stroke-width",0.5);
-    silG.append("text").attr("x",-8).attr("y",ty+4)
-      .attr("text-anchor","end").attr("fill",C.muted).attr("font-size","8px")
-      .attr("font-family","JetBrains Mono, monospace").text(logLabel(v));
-  });
-
-  // Gap annotation between biology ceiling (10^15) and Grok-3 (10^27)
-  const gY1 = margin.top + y(1e15);
-  const gY2 = margin.top + y(1e27);
-  const gX = margin.left + panelW + 20;
+  // Gap annotation
+  const gY1=m.top+y(1e15), gY2=m.top+y(1e27), gX=m.left+pW+22;
   svg.append("line").attr("x1",gX).attr("y1",gY1).attr("x2",gX).attr("y2",gY2)
-    .attr("stroke",C.yellow).attr("stroke-width",1);
-  svg.append("text").attr("x",gX+4).attr("y",(gY1+gY2)/2-8)
-    .attr("fill",C.yellow).attr("font-size","9px").attr("font-family","JetBrains Mono, monospace")
-    .text("~12 OOM");
-  svg.append("text").attr("x",gX+4).attr("y",(gY1+gY2)/2+4)
-    .attr("fill",C.yellow).attr("font-size","9px").attr("font-family","JetBrains Mono, monospace")
-    .text("bio ceiling");
-  svg.append("text").attr("x",gX+4).attr("y",(gY1+gY2)/2+16)
-    .attr("fill",C.yellow).attr("font-size","9px").attr("font-family","JetBrains Mono, monospace")
-    .text("→ Grok-3");
+    .attr("stroke",C.yellow).attr("stroke-width",1).attr("stroke-dasharray","3,3");
+  ["~12 OOM","bio ceiling","→ Grok-3"].forEach((t,i) => {
+    mono(svg, gX+4, (gY1+gY2)/2-10+i*12, t, C.yellow, "9px");
+  });
 
-  // Subtitle
-  svg.append("text").attr("x",W/2).attr("y",H-8).attr("text-anchor","middle")
-    .attr("fill",C.muted).attr("font-size","9px").attr("font-family","JetBrains Mono, monospace")
-    .text("Neurons ≠ FLOPs — scale comparison only · Sources: Epoch AI, xAI, Wikipedia, Azevedo et al. 2009");
+  mono(svg, W/2, H-3,
+    "Neurons ≠ FLOPs — scale comparison only · same log₁₀ axis · Sources: Epoch AI, Azevedo et al. 2009",
+    C.dim, "9px", "middle");
 };
 
 
 // ═══════════════════════════════════════════════════════════════
-// CHART 4 — The Big Bang vs. The Compute Explosion
+// CHART 3 — The Big Bang vs. The Compute Explosion
+// Sources: NIST/NASA cosmology constants, Epoch AI, TOP500.org
 // ═══════════════════════════════════════════════════════════════
-window.buildChart4 = function(containerId) {
-  const cosmosData = [
-    { name:"Planck Length",    log10:1,  desc:"~10⁻³⁵ m — smallest meaningful scale" },
-    { name:"Quark Era",        log10:5,  desc:"t = 10⁻¹² sec — four forces unified" },
-    { name:"End of Inflation", log10:10, desc:"t = 10⁻³² sec — 10²⁶× expansion in a fraction of a second" },
-    { name:"First Protons",    log10:18, desc:"t = 10⁻⁶ sec" },
-    { name:"Nucleosynthesis",  log10:24, desc:"t = 3 min" },
-    { name:"First Atoms",      log10:29, desc:"t = 380,000 yrs — universe becomes transparent" },
-    { name:"First Stars",      log10:33, desc:"t = 200M yrs" },
-    { name:"Milky Way Forms",  log10:37, desc:"t = 1B yrs" },
-    { name:"Solar System",     log10:38, desc:"t = 9B yrs" },
-    { name:"First Life",       log10:38.5,desc:"t = 10B yrs" },
-    { name:"Today",            log10:41, desc:"13.8 billion years" },
+window.buildChart3 = function(id) {
+  const cosmos = [
+    {log10:1,  name:"Planck Length",   desc:"smallest meaningful scale"},
+    {log10:10, name:"End Inflation",   desc:"universe expands 10²⁶× in an instant"},
+    {log10:18, name:"First Protons",   desc:"t = 10⁻⁶ sec"},
+    {log10:24, name:"Nucleosynthesis", desc:"t = 3 min — H + He form"},
+    {log10:29, name:"First Atoms",     desc:"t = 380,000 yrs — universe transparent"},
+    {log10:33, name:"First Stars",     desc:"t = 200M yrs"},
+    {log10:37, name:"Milky Way",       desc:"t = 1B yrs"},
+    {log10:38, name:"Solar System",    desc:"t = 9B yrs"},
+    {log10:41, name:"Today",           desc:"13.8 billion years"},
+  ];
+  const compute = [
+    {log10:3.7,  color:C.green, label:"ENIAC (1946)"},
+    {log10:8.0,  color:C.green, label:null},
+    {log10:12.0, color:C.green, label:null},
+    {log10:15.0, color:C.green, label:"Roadrunner (2008)"},
+    {log10:18.08,color:C.green, label:"Frontier (2022)"},
+    {log10:23.5, color:C.pink,  label:null},
+    {log10:24.7, color:C.pink,  label:"GPT-4 (2023)"},
+    {log10:27.0, color:C.pink,  label:"Grok-3 (2025)"},
+    {log10:28.0, color:C.pink,  label:null, projected:true},
   ];
 
-  const computeData = [
-    { name:"ENIAC (1946)",          log10:3.7,  color:C.green },
-    { name:"Cray-1 (1976)",         log10:8.0,  color:C.green },
-    { name:"ASCI Red (1997)",       log10:12.0, color:C.green },
-    { name:"IBM Roadrunner (2008)", log10:15.0, color:C.green },
-    { name:"IBM Summit (2018)",     log10:17.3, color:C.green },
-    { name:"Frontier (2022)",       log10:18.08,color:C.green },
-    { name:"GPT-3 Training (2020)", log10:23.5, color:C.pink },
-    { name:"GPT-4 Training (2023)", log10:24.7, color:C.pink },
-    { name:"Gemini Ultra (2024)",   log10:25.3, color:C.pink },
-    { name:"Grok-3 Training (2025)",log10:27.0, color:C.pink },
-    { name:"2026 Frontier (proj.)", log10:28.0, color:C.pink, projected:true },
-  ];
+  d3.select(`#${id}`).selectAll("*").remove();
+  const W = cw(id), H = Math.round(W * 0.84);
+  const m = {top:36, right:20, bottom:36, left:16};
+  const pW = (W - m.left - m.right - 44) / 2;
+  const ih = H - m.top - m.bottom;
+  const bH = 13;
 
-  const el = document.getElementById(containerId);
-  const W = chartWidth(el);
-  const H = Math.round(W * 0.82);
-  const margin = { top: 40, right: 20, bottom: 40, left: 20 };
-  const panelW = (W - margin.left - margin.right - 40) / 2;
-  const ih = H - margin.top - margin.bottom;
-  const barH = 12;
-
-  d3.select(`#${containerId}`).selectAll("*").remove();
-
-  const svg = d3.select(`#${containerId}`)
-    .append("svg").attr("width",W).attr("height",H)
+  const svg = d3.select(`#${id}`).append("svg").attr("width",W).attr("height",H)
     .style("background",C.bg).style("border-radius","8px");
 
-  // Shared Y: 1 to 10^65
-  const y = d3.scaleLog().base(10).domain([1, 1e65]).range([ih - 5, 5]);
+  const y = d3.scaleLog().base(10).domain([1, 1e65]).range([ih-6, 6]);
 
-  // Titles
-  svg.append("text").attr("x",margin.left + panelW/2).attr("y",22)
-    .attr("text-anchor","middle").attr("fill",C.green)
-    .attr("font-size","11px").attr("font-family","JetBrains Mono, monospace").attr("font-weight","500")
-    .text("The Big Bang (Expansion of the Universe)");
-  svg.append("text").attr("x",W-margin.right-panelW/2).attr("y",22)
-    .attr("text-anchor","middle").attr("fill",C.pink)
-    .attr("font-size","11px").attr("font-family","JetBrains Mono, monospace").attr("font-weight","500")
-    .text("Human Computation (Training FLOPs)");
+  mono(svg, m.left+pW/2, 22, "The Big Bang (Observable Universe Scale)", C.green, "11px", "middle")
+    .attr("font-weight","500");
+  mono(svg, W-m.right-pW/2, 22, "Human Computation (ENIAC → 2026)", C.pink, "11px", "middle")
+    .attr("font-weight","500");
 
-  // LEFT — cosmos bars
-  const cosG = svg.append("g").attr("transform",`translate(${margin.left},${margin.top})`);
+  // ── LEFT: cosmos ──
+  const cG = svg.append("g").attr("transform",`translate(${m.left},${m.top})`);
+  const cBarW = pW - 148;
 
   // Inflation highlight zone
-  const inflBot = y(1e10), inflTop = y(1e36);
-  cosG.append("rect").attr("x",60).attr("y",inflTop)
-    .attr("width",panelW-130).attr("height",inflBot-inflTop)
+  const iTop=y(1e10), iBot=y(1e36);
+  cG.append("rect").attr("x",52).attr("y",iTop).attr("width",cBarW).attr("height",iBot-iTop)
     .attr("fill","rgba(6,214,160,0.05)").attr("rx",2);
 
-  cosmosData.forEach(d => {
-    const cy = y(Math.pow(10, d.log10));
-    cosG.append("rect").attr("x",60).attr("y",cy-barH/2)
-      .attr("width",panelW-130).attr("height",barH)
-      .attr("fill",C.green).attr("opacity", d.name === "Today" ? 0.9 : 0.5).attr("rx",2);
-    cosG.append("text").attr("x",60+(panelW-127)).attr("y",cy+4)
-      .attr("fill",C.muted).attr("font-size","8px").attr("font-family","JetBrains Mono, monospace")
-      .text(d.name.length > 18 ? d.name.slice(0,17)+"…" : d.name);
+  cosmos.forEach(d => {
+    const cy = y(Math.pow(10,d.log10));
+    cG.append("rect").attr("x",52).attr("y",cy-bH/2).attr("width",cBarW).attr("height",bH)
+      .attr("fill",C.green).attr("opacity",d.name==="Today"?0.9:0.5).attr("rx",2);
+    const short = d.name.length>20 ? d.name.slice(0,19)+"…" : d.name;
+    mono(cG, 52+cBarW+5, cy+4, short, d.name==="Today"?C.green:C.muted, "9px");
   });
 
-  // Cosmos Y axis ticks
   [1,1e5,1e10,1e15,1e20,1e25,1e30,1e35,1e40,1e45,1e50,1e55,1e60,1e65].forEach(v => {
-    const ty = y(v);
-    const exp = Math.round(Math.log10(v));
-    cosG.append("line").attr("x1",55).attr("x2",60).attr("y1",ty).attr("y2",ty)
+    const ty=y(v), e=Math.round(Math.log10(v));
+    cG.append("line").attr("x1",46).attr("x2",52).attr("y1",ty).attr("y2",ty)
       .attr("stroke",C.border).attr("stroke-width",0.5);
-    cosG.append("text").attr("x",52).attr("y",ty+4)
-      .attr("text-anchor","end").attr("fill",C.muted).attr("font-size","8px")
-      .attr("font-family","JetBrains Mono, monospace")
-      .text(exp === 0 ? "1" : `10^${exp}`);
+    if (e%10===0 || e===1) mono(cG, 44, ty+4, e===0?"1":`10^${e}`, C.muted, "8px", "end");
   });
 
-  // 41 OOM cosmos annotation
-  const c41y1 = margin.top + y(1), c41y2 = margin.top + y(1e41);
-  const c41x = margin.left + 15;
-  svg.append("line").attr("x1",c41x).attr("y1",c41y1).attr("x2",c41x).attr("y2",c41y2)
+  // ~41 OOM annotation
+  const a41y1=m.top+y(1), a41y2=m.top+y(1e41);
+  svg.append("line").attr("x1",m.left+12).attr("y1",a41y1).attr("x2",m.left+12).attr("y2",a41y2)
     .attr("stroke",C.green).attr("stroke-width",1);
-  svg.append("text").attr("x",c41x+4).attr("y",(c41y1+c41y2)/2-4)
-    .attr("fill",C.green).attr("font-size","9px").attr("font-family","JetBrains Mono, monospace")
-    .text("~41 OOM");
-  svg.append("text").attr("x",c41x+4).attr("y",(c41y1+c41y2)/2+8)
-    .attr("fill",C.green).attr("font-size","9px").attr("font-family","JetBrains Mono, monospace")
-    .text("13.8B years");
-
-  // RIGHT — compute bars
-  const comG = svg.append("g").attr("transform",`translate(${W-margin.right-panelW},${margin.top})`);
-
-  computeData.forEach(d => {
-    const cy = y(Math.pow(10, d.log10));
-    comG.append("rect").attr("x",0).attr("y",cy-barH/2)
-      .attr("width",panelW-150).attr("height",barH)
-      .attr("fill",d.color).attr("opacity",d.projected ? 0.35 : 0.65).attr("rx",2);
-    comG.append("text").attr("x",panelW-146).attr("y",cy+4)
-      .attr("fill",C.muted).attr("font-size","8px").attr("font-family","JetBrains Mono, monospace")
-      .text(d.name.length > 24 ? d.name.slice(0,23)+"…" : d.name);
+  ["~41 OOM","13.8B yrs"].forEach((t,i) => {
+    mono(svg, m.left+16, (a41y1+a41y2)/2-5+i*12, t, C.green, "9px");
   });
 
-  // Compute Y axis
+  // ── RIGHT: compute ──
+  const rG = svg.append("g").attr("transform",`translate(${W-m.right-pW},${m.top})`);
+  const rBarW = pW - 162;
+
+  compute.forEach(d => {
+    const cy = y(Math.pow(10,d.log10));
+    rG.append("rect").attr("x",0).attr("y",cy-bH/2).attr("width",rBarW).attr("height",bH)
+      .attr("fill",d.color).attr("opacity",d.projected?0.35:0.65).attr("rx",2);
+    if (d.label) mono(rG, rBarW+5, cy+4, d.label, C.muted, "9px");
+  });
+
   [1,1e5,1e10,1e15,1e20,1e25,1e30,1e35,1e40,1e45,1e50,1e55,1e60,1e65].forEach(v => {
-    const ty = y(v);
-    const exp = Math.round(Math.log10(v));
-    comG.append("line").attr("x1",-5).attr("x2",0).attr("y1",ty).attr("y2",ty)
+    const ty=y(v), e=Math.round(Math.log10(v));
+    rG.append("line").attr("x1",-5).attr("x2",0).attr("y1",ty).attr("y2",ty)
       .attr("stroke",C.border).attr("stroke-width",0.5);
-    comG.append("text").attr("x",-8).attr("y",ty+4)
-      .attr("text-anchor","end").attr("fill",C.muted).attr("font-size","8px")
-      .attr("font-family","JetBrains Mono, monospace")
-      .text(exp === 0 ? "1" : `10^${exp}`);
+    if (e%10===0 || e===1) mono(rG, -8, ty+4, e===0?"1":`10^${e}`, C.muted, "8px", "end");
   });
 
-  // 24 OOM compute annotation
-  const c24y1 = margin.top + y(1), c24y2 = margin.top + y(1e24);
-  const c24x = W - 14;
-  svg.append("line").attr("x1",c24x).attr("y1",c24y1).attr("x2",c24x).attr("y2",c24y2)
+  // ~24 OOM annotation
+  const a24y1=m.top+y(1), a24y2=m.top+y(1e24);
+  svg.append("line").attr("x1",W-12).attr("y1",a24y1).attr("x2",W-12).attr("y2",a24y2)
     .attr("stroke",C.pink).attr("stroke-width",1);
-  svg.append("text").attr("x",c24x-4).attr("y",(c24y1+c24y2)/2-4)
-    .attr("text-anchor","end").attr("fill",C.pink).attr("font-size","9px")
-    .attr("font-family","JetBrains Mono, monospace").text("~24 OOM");
-  svg.append("text").attr("x",c24x-4).attr("y",(c24y1+c24y2)/2+8)
-    .attr("text-anchor","end").attr("fill",C.pink).attr("font-size","9px")
-    .attr("font-family","JetBrains Mono, monospace").text("80 years");
+  ["~24 OOM","80 years"].forEach((t,i) => {
+    mono(svg, W-16, (a24y1+a24y2)/2-5+i*12, t, C.pink, "9px", "end");
+  });
+
+  mono(svg, W/2, H-6,
+    "Big Bang: ~41 OOM in 13.8B years  ·  Computation: ~24 OOM in 80 years  ·  same log₁₀ scale",
+    C.dim, "9px", "middle");
+};
+
+
+// ═══════════════════════════════════════════════════════════════
+// CHART 4 — Atoms in the Observable Universe vs. Human Computation
+// Sources: Eddington number ~10^78–10^80 (standard cosmology),
+//          Epoch AI (training FLOPs), TOP500.org, ORNL, xAI
+// ═══════════════════════════════════════════════════════════════
+window.buildChart4 = function(id) {
+  // Scale values represent "observable universe complexity" anchored to
+  // ~10^78 atoms today (Eddington number). Intermediate values are
+  // proportional cosmic-epoch proxies, not literal atom counts
+  // (most atoms formed during nucleosynthesis at t~3 min).
+  const universe = [
+    {log10:1,  name:"First Atom",    desc:"380,000 yrs — hydrogen forms"},
+    {log10:10, name:"First Stars",   desc:"~200M yrs — fusion ignites"},
+    {log10:18, name:"First Galaxies",desc:"~400M yrs — matter clusters"},
+    {log10:27, name:"Milky Way",     desc:"~1B yrs — our galaxy forms"},
+    {log10:38, name:"Solar System",  desc:"~9B yrs — Earth forms"},
+    {log10:50, name:"Life on Earth", desc:"~10B yrs — biology begins"},
+    {log10:60, name:"Complex Life",  desc:"~13.3B yrs — Cambrian explosion"},
+    {log10:70, name:"Humans",        desc:"~13.8B yrs — 300,000 years ago"},
+    {log10:78, name:"Today",         desc:"13.8B yrs — ~10⁷⁸ atoms"},
+  ];
+  const compute = [
+    {log10:3.7,  color:C.green, label:"ENIAC (1946)"},
+    {log10:8.0,  color:C.green, label:null},
+    {log10:12.0, color:C.green, label:null},
+    {log10:15.0, color:C.green, label:"Roadrunner (2008)"},
+    {log10:18.08,color:C.green, label:"Frontier (2022)"},
+    {log10:23.5, color:C.pink,  label:null},
+    {log10:24.7, color:C.pink,  label:"GPT-4 (2023)"},
+    {log10:27.0, color:C.pink,  label:"Grok-3 (2025)"},
+    {log10:28.0, color:C.pink,  label:null, projected:true},
+  ];
+
+  d3.select(`#${id}`).selectAll("*").remove();
+  const W = cw(id), H = Math.round(W * 0.98);
+  const m = {top:36, right:20, bottom:50, left:16};
+  const pW = (W - m.left - m.right - 44) / 2;
+  const ih = H - m.top - m.bottom;
+  const bH = 12;
+
+  const svg = d3.select(`#${id}`).append("svg").attr("width",W).attr("height",H)
+    .style("background",C.bg).style("border-radius","8px");
+
+  const y = d3.scaleLog().base(10).domain([1, 1e82]).range([ih-6, 6]);
+
+  mono(svg, m.left+pW/2, 22, "Atoms in the Observable Universe", C.green, "11px", "middle")
+    .attr("font-weight","500");
+  mono(svg, W-m.right-pW/2, 22, "Human Computation (ENIAC → 2026)", C.pink, "11px", "middle")
+    .attr("font-weight","500");
+
+  // ── LEFT: universe ──
+  const uG = svg.append("g").attr("transform",`translate(${m.left},${m.top})`);
+  const uBarW = pW - 146;
+
+  universe.forEach(d => {
+    const cy = y(Math.pow(10,d.log10));
+    uG.append("rect").attr("x",50).attr("y",cy-bH/2).attr("width",uBarW).attr("height",bH)
+      .attr("fill",C.green).attr("opacity",d.name==="Today"?0.92:0.5).attr("rx",2);
+    mono(uG, 50+uBarW+5, cy+1, d.name, d.name==="Today"?C.green:C.text, "9px");
+    mono(uG, 50+uBarW+5, cy+12, d.desc, C.dim, "8px");
+  });
+
+  // "humans exist for only 8 orders" bracket
+  const hTop=m.top+y(1e70), hBot=m.top+y(1e78);
+  svg.append("line").attr("x1",m.left+10).attr("y1",hTop).attr("x2",m.left+10).attr("y2",hBot)
+    .attr("stroke",C.yellow).attr("stroke-width",1);
+  ["humans","exist","~8 OOM"].forEach((t,i) => {
+    mono(svg, m.left+14, hTop+(hBot-hTop)/2-12+i*11, t, C.yellow, "8px");
+  });
+
+  // Y axis (universe)
+  [1,1e10,1e20,1e30,1e40,1e50,1e60,1e70,1e78].forEach(v => {
+    const ty=y(v), e=Math.round(Math.log10(v));
+    uG.append("line").attr("x1",44).attr("x2",50).attr("y1",ty).attr("y2",ty)
+      .attr("stroke",C.border).attr("stroke-width",0.5);
+    mono(uG, 42, ty+4, e===0?"1":`10^${e}`, C.muted, "8px", "end");
+  });
+
+  // ~78 OOM annotation
+  const u78y1=m.top+y(1), u78y2=m.top+y(1e78);
+  svg.append("line").attr("x1",m.left+10).attr("y1",u78y1).attr("x2",m.left+10).attr("y2",u78y2)
+    .attr("stroke",C.green).attr("stroke-width",1);
+  ["~78 OOM","13.8B yrs"].forEach((t,i) => {
+    mono(svg, m.left+14, (u78y1+u78y2)/2+25+i*12, t, C.green, "9px");
+  });
+
+  // ── RIGHT: compute ──
+  const rG = svg.append("g").attr("transform",`translate(${W-m.right-pW},${m.top})`);
+  const rBarW = pW - 162;
+
+  // "computation not here yet" zone
+  const nyTop=y(1e28), nyBot=y(1e78);
+  rG.append("rect").attr("x",0).attr("y",nyTop).attr("width",rBarW).attr("height",nyBot-nyTop)
+    .attr("fill","rgba(255,255,255,0.013)").attr("rx",2);
+  ["← computation","not here yet"].forEach((t,i) => {
+    mono(rG, rBarW/2, (nyTop+nyBot)/2-6+i*14, t, "rgba(255,255,255,0.18)", "9px", "middle")
+      .attr("font-style","italic");
+  });
+
+  // Dashed reference line at 10^78 (total atoms)
+  const atomY = y(1e78);
+  rG.append("line").attr("x1",-8).attr("x2",rBarW)
+    .attr("y1",atomY).attr("y2",atomY)
+    .attr("stroke",C.green).attr("stroke-width",0.8).attr("stroke-dasharray","5,3").attr("opacity",0.65);
+  mono(rG, rBarW+5, atomY+4, "~10⁷⁸", C.green, "8px");
+  mono(rG, rBarW+5, atomY+14, "atoms", C.green, "8px");
+
+  // Annotation at Grok-3 level
+  const grokY = y(Math.pow(10,27));
+  mono(rG, rBarW+5, grokY-8,  "← universe took", C.dim, "8px");
+  mono(rG, rBarW+5, grokY+3,  "13.8B yrs to",    C.dim, "8px");
+  mono(rG, rBarW+5, grokY+13, "reach ~10²⁸",     C.dim, "8px");
+
+  compute.forEach(d => {
+    const cy = y(Math.pow(10,d.log10));
+    rG.append("rect").attr("x",0).attr("y",cy-bH/2).attr("width",rBarW).attr("height",bH)
+      .attr("fill",d.color).attr("opacity",d.projected?0.35:0.65).attr("rx",2);
+    if (d.label) mono(rG, rBarW+5, cy+4, d.label, C.muted, "9px");
+  });
+
+  // Y axis (compute)
+  [1,1e10,1e20,1e30,1e40,1e50,1e60,1e70,1e78].forEach(v => {
+    const ty=y(v), e=Math.round(Math.log10(v));
+    rG.append("line").attr("x1",-5).attr("x2",0).attr("y1",ty).attr("y2",ty)
+      .attr("stroke",C.border).attr("stroke-width",0.5);
+    mono(rG, -8, ty+4, e===0?"1":`10^${e}`, C.muted, "8px", "end");
+  });
+
+  // ~24 OOM annotation
+  const c24y1=m.top+y(1), c24y2=m.top+y(1e24);
+  svg.append("line").attr("x1",W-12).attr("y1",c24y1).attr("x2",W-12).attr("y2",c24y2)
+    .attr("stroke",C.pink).attr("stroke-width",1);
+  ["~24 OOM","80 years"].forEach((t,i) => {
+    mono(svg, W-16, (c24y1+c24y2)/2-5+i*12, t, C.pink, "9px", "end");
+  });
 
   // Footer
-  svg.append("text").attr("x",W/2).attr("y",H-6).attr("text-anchor","middle")
-    .attr("fill",C.muted).attr("font-size","9px").attr("font-family","JetBrains Mono, monospace")
-    .text("Big Bang took 13.8 BILLION years to expand 41 orders of magnitude. Human computation did 24 orders in 80 years — and is still accelerating.");
+  [
+    "The universe needed 13.8 BILLION years to build 10⁷⁸ atoms — 78 orders of magnitude.",
+    "At current doubling rates (~12 months), computation could arithmetically reach 10⁷⁸ operations in roughly 50 years.",
+  ].forEach((line,i) => {
+    mono(svg, W/2, H-28+i*16, line, C.muted, "9px", "middle");
+  });
 };

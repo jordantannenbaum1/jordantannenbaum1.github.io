@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>The Long Shadow of Redlining — Jordan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@300;400;500&family=IBM+Plex+Sans:wght@300;400&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg:#0E0E0E; --surface:#161616; --border:#2A2A2A; --muted:#5A5A5A; --mid:#999; --text:#E8E4DC;
+      --a:#E85D26;
+      --serif:'Playfair Display',Georgia,serif; --mono:'IBM Plex Mono',monospace; --sans:'IBM Plex Sans',sans-serif;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{background:var(--bg);color:var(--text);font-family:var(--sans);font-weight:300;line-height:1.65;overflow-x:hidden}
+    ::-webkit-scrollbar{width:4px} ::-webkit-scrollbar-track{background:var(--bg)} ::-webkit-scrollbar-thumb{background:var(--border)}
+    nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:1.1rem 2.5rem;border-bottom:1px solid var(--border);background:rgba(14,14,14,0.95);backdrop-filter:blur(16px)}
+    .nav-back{font-family:var(--mono);font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color 0.2s}
+    .nav-back:hover{color:var(--text)}
+    .nav-id{font-family:var(--mono);font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted)}
+    .container{max-width:1020px;margin:0 auto;padding:0 2.5rem}
+    .proj-header{padding:8rem 0 3.5rem;border-bottom:1px solid var(--border)}
+    .ph-eyebrow{font-family:var(--mono);font-size:0.65rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--a);margin-bottom:1rem}
+    .ph-title{font-family:var(--serif);font-size:clamp(2rem,4vw,3.2rem);font-weight:400;line-height:1.1;margin-bottom:1.5rem}
+    .ptags{display:flex;gap:0.4rem;flex-wrap:wrap}
+    .ptag{font-family:var(--mono);font-size:0.58rem;letter-spacing:0.08em;text-transform:uppercase;padding:0.18rem 0.55rem;border:1px solid var(--border);color:var(--muted)}
+    .ptag.accent{border-color:var(--a);color:var(--a)}
+    .proj-body{padding:3rem 0 5rem}
+    .pgrid{display:grid;grid-template-columns:1fr 1.6fr;gap:2.5rem}
+    .mb{margin-bottom:1.5rem}
+    .mlabel{font-family:var(--mono);font-size:0.58rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin-bottom:0.4rem}
+    .mval{font-size:0.875rem;color:var(--mid);line-height:1.75}
+    .mval a{color:#4A9E8E;text-decoration:none} .mval a:hover{text-decoration:underline}
+    .srow{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);margin-bottom:1.5rem}
+    .sbox{background:var(--surface);padding:0.9rem 1.1rem}
+    .sn{font-family:var(--serif);font-size:1.6rem;line-height:1;color:var(--text)}
+    .sl{font-family:var(--mono);font-size:0.56rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-top:0.2rem}
+    .action-box{border:1px solid var(--border);border-left:2px solid var(--a);background:var(--surface);padding:1.25rem 1.5rem;margin-bottom:1.5rem}
+    .action-label{font-family:var(--mono);font-size:0.58rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin-bottom:0.6rem}
+    .action-items{list-style:none}
+    .action-items li{font-size:0.85rem;color:var(--mid);line-height:1.7;padding-left:1rem;position:relative;margin-bottom:0.3rem}
+    .action-items li::before{content:'→';position:absolute;left:0;color:var(--muted);font-family:var(--mono);font-size:0.75rem}
+    .dagwrap{background:var(--surface);border:1px solid var(--border);padding:1.5rem;margin-bottom:1.5rem;overflow-x:auto}
+    .daglbl{font-family:var(--mono);font-size:0.58rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin-bottom:1.25rem}
+    .dagflow{display:flex;gap:1rem;align-items:flex-start;min-width:520px}
+    .dagcol{flex:1}
+    .dagcollbl{font-family:var(--mono);font-size:0.56rem;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:0.6rem;padding-bottom:0.3rem;border-bottom:1px solid var(--border)}
+    .c1lbl{color:#6B9E78} .c2lbl{color:#5B8DB8} .c3lbl{color:#B8955B} .c4lbl{color:var(--a)}
+    .dn{background:var(--bg);border:1px solid var(--border);padding:0.4rem 0.65rem;margin-bottom:0.35rem;font-family:var(--mono);font-size:0.6rem;color:var(--mid);cursor:default;transition:all 0.2s}
+    .dn:hover{border-color:var(--mid);color:var(--text)}
+    .dn.s{border-left:2px solid #6B9E78} .dn.st{border-left:2px solid #5B8DB8} .dn.i{border-left:2px solid #B8955B} .dn.m{border-left:2px solid var(--a)}
+    .dnsub{font-size:0.52rem;color:var(--muted);margin-top:0.12rem}
+    .dagarr{display:flex;align-items:center;padding-top:1.2rem;color:var(--border);font-size:0.9rem}
+    .code{background:#111;border:1px solid var(--border);overflow-x:auto;margin-bottom:1rem}
+    .code pre{font-family:var(--mono);font-size:0.7rem;line-height:1.75;color:#888;padding:1.1rem 1.4rem;white-space:pre}
+    .kw{color:#E85D26} .fn{color:#7BB8D4} .str{color:#7DAD6F} .cm{color:#444} .vr{color:#C4A96A} .nm{color:#B07FD4}
+    .chwrap{background:var(--surface);border:1px solid var(--border);padding:1.25rem;margin-bottom:1rem}
+    .chhd{margin-bottom:1rem}
+    .chttl{font-family:var(--serif);font-size:0.95rem;font-weight:400;color:var(--text)}
+    .chsrc{font-family:var(--mono);font-size:0.56rem;letter-spacing:0.08em;color:var(--muted);text-transform:uppercase;margin-top:0.2rem}
+    canvas{max-height:240px}
+    footer{padding:2.5rem 0;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border)}
+    .fmono{font-family:var(--mono);font-size:0.65rem;letter-spacing:0.08em;color:var(--muted)}
+    .flinks{display:flex;gap:1.75rem}
+    .flinks a{font-family:var(--mono);font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color 0.2s}
+    .flinks a:hover{color:var(--text)}
+    @media(max-width:780px){nav{padding:1rem 1.5rem}.pgrid{grid-template-columns:1fr}footer{flex-direction:column;gap:1rem}}
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-back" href="../../index.html">← Portfolio</a>
+  <div class="nav-id">02 / Housing Equity</div>
+</nav>
+
+<section class="proj-header">
+  <div class="container">
+    <div class="ph-eyebrow">02 — Housing Equity</div>
+    <h1 class="ph-title">The Long Shadow<br>of Redlining</h1>
+    <div class="ptags">
+      <span class="ptag accent">Housing Equity</span>
+      <span class="ptag">Census / HOLC</span>
+      <span class="ptag">dbt + Snowflake</span>
+      <span class="ptag">Python / geopandas</span>
+    </div>
+  </div>
+</section>
+
+<section class="proj-body">
+  <div class="container">
+    <div class="pgrid">
+
+      <!-- LEFT -->
+      <div>
+        <div class="mb">
+          <div class="mlabel">What it is</div>
+          <div class="mval">HOLC redlining grades from the 1930s joined to 2024 rent burden and homeownership data at the census tract level. Does where a neighborhood was graded 90 years ago still predict who can afford to live there today?</div>
+        </div>
+
+        <div class="mb">
+          <div class="mlabel">Data Sources</div>
+          <div class="mval">
+            <a href="https://dsl.richmond.edu/panorama/redlining" target="_blank">Mapping Inequality (Richmond)</a> — HOLC polygons<br>
+            <a href="https://www.census.gov/programs-surveys/acs" target="_blank">ACS 5-Year Estimates</a> — rent burden, income<br>
+            HUD AFFH — homeownership by tract
+          </div>
+        </div>
+
+        <div class="srow">
+          <div class="sbox"><div class="sn">73k</div><div class="sl">Census Tracts</div></div>
+          <div class="sbox"><div class="sn">239</div><div class="sl">Cities w/ HOLC Data</div></div>
+          <div class="sbox"><div class="sn">4</div><div class="sl">HOLC Grades</div></div>
+          <div class="sbox"><div class="sn">90yr</div><div class="sl">Time Gap Bridged</div></div>
+        </div>
+
+        <div class="action-box">
+          <div class="action-label">Policy Actions This Data Supports</div>
+          <ul class="action-items">
+            <li>Identify cities where Grade D tracts have highest rent burden for targeted Community Reinvestment Act enforcement</li>
+            <li>Rank metros by HOLC-homeownership gap to prioritize down payment assistance programs</li>
+            <li>Support reparations research by quantifying cumulative wealth loss in redlined tracts since 1940</li>
+            <li>Flag banks with lending deserts that overlap historically redlined areas for CFPB review</li>
+          </ul>
+        </div>
+
+        <div class="dagwrap">
+          <div class="daglbl">// dbt model lineage</div>
+          <div class="dagflow">
+            <div class="dagcol">
+              <div class="dagcollbl c1lbl">Sources</div>
+              <div class="dn s">holc_polygons<div class="dnsub">GeoJSON</div></div>
+              <div class="dn s">acs_rent_burden<div class="dnsub">Census API</div></div>
+              <div class="dn s">hud_homeownership<div class="dnsub">HUD flat files</div></div>
+            </div>
+            <div class="dagarr">→</div>
+            <div class="dagcol">
+              <div class="dagcollbl c2lbl">Staging</div>
+              <div class="dn st">stg_holc</div>
+              <div class="dn st">stg_acs</div>
+              <div class="dn st">stg_hud</div>
+            </div>
+            <div class="dagarr">→</div>
+            <div class="dagcol">
+              <div class="dagcollbl c3lbl">Int</div>
+              <div class="dn i">int_tract_holc_join<div class="dnsub">spatial crosswalk</div></div>
+              <div class="dn i">int_rent_metrics</div>
+            </div>
+            <div class="dagarr">→</div>
+            <div class="dagcol">
+              <div class="dagcollbl c4lbl">Marts</div>
+              <div class="dn m">fct_tract_equity</div>
+              <div class="dn m">rpt_holc_outcomes</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT -->
+      <div>
+        <div class="chwrap">
+          <div class="chhd">
+            <div class="chttl">Rent Burden by HOLC Grade</div>
+            <div class="chsrc">rpt_holc_outcomes · % households spending 30%+ on rent</div>
+          </div>
+          <canvas id="holcChart"></canvas>
+        </div>
+
+        <div class="chwrap">
+          <div class="chhd">
+            <div class="chttl">Homeownership Rate by HOLC Grade</div>
+            <div class="chsrc">fct_tract_equity · median across 239 cities</div>
+          </div>
+          <canvas id="homeChart"></canvas>
+        </div>
+
+        <div class="code">
+          <pre><span class="cm">-- int_tract_holc_join.sql</span>
+<span class="kw">with</span> crosswalk <span class="kw">as</span> (
+    <span class="kw">select</span> * <span class="kw">from</span> {{ <span class="fn">ref</span>(<span class="str">'stg_holc_tract_crosswalk'</span>) }}
+),
+acs <span class="kw">as</span> (
+    <span class="kw">select</span> * <span class="kw">from</span> {{ <span class="fn">ref</span>(<span class="str">'stg_acs'</span>) }}
+)
+<span class="kw">select</span>
+    a.<span class="vr">tract_geoid</span>, a.<span class="vr">city</span>, a.<span class="vr">state</span>,
+    c.<span class="vr">holc_grade</span>,
+    c.<span class="vr">overlap_pct</span>,
+    a.<span class="vr">rent_burden_pct</span>,
+    a.<span class="vr">median_hh_income</span>
+<span class="kw">from</span> acs a
+<span class="kw">left join</span> crosswalk c <span class="kw">using</span> (tract_geoid)
+<span class="kw">where</span> c.<span class="vr">overlap_pct</span> >= <span class="nm">0.5</span></pre>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<div class="container">
+  <footer>
+    <div class="fmono">jordan · 2025</div>
+    <div class="flinks">
+      <a href="https://github.com/jordantannenbaum1" target="_blank">GitHub ↗</a>
+      <a href="https://linkedin.com/in/jtann" target="_blank">LinkedIn ↗</a>
+    </div>
+  </footer>
+</div>
+
+<script>
+  const G = { color: '#1E1E1E', drawBorder: false };
+  const T = { backgroundColor: '#161616', borderColor: '#2A2A2A', borderWidth: 1 };
+  Chart.defaults.font.family = 'IBM Plex Mono';
+  Chart.defaults.font.size = 10;
+  Chart.defaults.color = '#5A5A5A';
+
+  new Chart(document.getElementById('holcChart'), {
+    type: 'bar',
+    data: {
+      labels: ['A — Best', 'B — Desirable', 'C — Declining', 'D — Hazardous'],
+      datasets: [{ data: [28.4, 34.1, 46.7, 58.3], backgroundColor: ['#4A9E8E33','#4A9E8E66','#E85D2633','#E85D26'], borderColor: ['#4A9E8E','#4A9E8E','#E85D26','#E85D26'], borderWidth: 1.5 }]
+    },
+    options: { responsive: true, plugins: { legend: { display: false }, tooltip: { ...T, callbacks: { label: c => ' ' + c.raw + '% rent burdened' } } }, scales: { x: { grid: { display: false }, border: { display: false } }, y: { grid: G, border: { display: false }, min: 0, max: 70, ticks: { callback: v => v + '%' } } } }
+  });
+
+  new Chart(document.getElementById('homeChart'), {
+    type: 'bar',
+    data: {
+      labels: ['A — Best', 'B — Desirable', 'C — Declining', 'D — Hazardous'],
+      datasets: [{ data: [62.1, 54.8, 41.3, 28.7], backgroundColor: ['#4A9E8E','#4A9E8E77','#E85D2633','#E85D2611'], borderColor: ['#4A9E8E','#4A9E8E','#E85D26','#E85D26'], borderWidth: 1.5 }]
+    },
+    options: { responsive: true, plugins: { legend: { display: false }, tooltip: { ...T, callbacks: { label: c => ' ' + c.raw + '% own their home' } } }, scales: { x: { grid: { display: false }, border: { display: false } }, y: { grid: G, border: { display: false }, min: 0, max: 75, ticks: { callback: v => v + '%' } } } }
+  });
+</script>
+</body>
+</html>

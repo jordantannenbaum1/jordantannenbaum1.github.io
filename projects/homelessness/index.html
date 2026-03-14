@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Priced Out: Housing Cost as the Engine of Homelessness — Jordan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@300;400;500&family=IBM+Plex+Sans:wght@300;400&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg:#0E0E0E; --surface:#161616; --border:#2A2A2A; --muted:#5A5A5A; --mid:#999; --text:#E8E4DC;
+      --a:#4A7FB5;
+      --serif:'Playfair Display',Georgia,serif; --mono:'IBM Plex Mono',monospace; --sans:'IBM Plex Sans',sans-serif;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{background:var(--bg);color:var(--text);font-family:var(--sans);font-weight:300;line-height:1.65;overflow-x:hidden}
+    ::-webkit-scrollbar{width:4px} ::-webkit-scrollbar-track{background:var(--bg)} ::-webkit-scrollbar-thumb{background:var(--border)}
+    nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:1.1rem 2.5rem;border-bottom:1px solid var(--border);background:rgba(14,14,14,0.95);backdrop-filter:blur(16px)}
+    .nav-back{font-family:var(--mono);font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color 0.2s}
+    .nav-back:hover{color:var(--text)}
+    .nav-id{font-family:var(--mono);font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted)}
+    .container{max-width:1020px;margin:0 auto;padding:0 2.5rem}
+    .proj-header{padding:8rem 0 3.5rem;border-bottom:1px solid var(--border)}
+    .ph-eyebrow{font-family:var(--mono);font-size:0.65rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--a);margin-bottom:1rem}
+    .ph-title{font-family:var(--serif);font-size:clamp(2rem,4vw,3.2rem);font-weight:400;line-height:1.1;margin-bottom:1.5rem}
+    .ptags{display:flex;gap:0.4rem;flex-wrap:wrap}
+    .ptag{font-family:var(--mono);font-size:0.58rem;letter-spacing:0.08em;text-transform:uppercase;padding:0.18rem 0.55rem;border:1px solid var(--border);color:var(--muted)}
+    .ptag.accent{border-color:var(--a);color:var(--a)}
+    .proj-body{padding:3rem 0 5rem}
+    .pgrid{display:grid;grid-template-columns:1fr 1.6fr;gap:2.5rem}
+    .mb{margin-bottom:1.5rem}
+    .mlabel{font-family:var(--mono);font-size:0.58rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin-bottom:0.4rem}
+    .mval{font-size:0.875rem;color:var(--mid);line-height:1.75}
+    .mval a{color:var(--a);text-decoration:none} .mval a:hover{text-decoration:underline}
+    .srow{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);margin-bottom:1.5rem}
+    .sbox{background:var(--surface);padding:0.9rem 1.1rem}
+    .sn{font-family:var(--serif);font-size:1.6rem;line-height:1;color:var(--text)}
+    .sl{font-family:var(--mono);font-size:0.56rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-top:0.2rem}
+    .action-box{border:1px solid var(--border);border-left:2px solid var(--a);background:var(--surface);padding:1.25rem 1.5rem;margin-bottom:1.5rem}
+    .action-label{font-family:var(--mono);font-size:0.58rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin-bottom:0.6rem}
+    .action-items{list-style:none}
+    .action-items li{font-size:0.85rem;color:var(--mid);line-height:1.7;padding-left:1rem;position:relative;margin-bottom:0.3rem}
+    .action-items li::before{content:'→';position:absolute;left:0;color:var(--muted);font-family:var(--mono);font-size:0.75rem}
+    .dagwrap{background:var(--surface);border:1px solid var(--border);padding:1.5rem;margin-bottom:1.5rem;overflow-x:auto}
+    .daglbl{font-family:var(--mono);font-size:0.58rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin-bottom:1.25rem}
+    .dagflow{display:flex;gap:1rem;align-items:flex-start;min-width:520px}
+    .dagcol{flex:1}
+    .dagcollbl{font-family:var(--mono);font-size:0.56rem;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:0.6rem;padding-bottom:0.3rem;border-bottom:1px solid var(--border)}
+    .c1lbl{color:#6B9E78} .c2lbl{color:#5B8DB8} .c3lbl{color:#B8955B} .c4lbl{color:var(--a)}
+    .dn{background:var(--bg);border:1px solid var(--border);padding:0.4rem 0.65rem;margin-bottom:0.35rem;font-family:var(--mono);font-size:0.6rem;color:var(--mid);cursor:default;transition:all 0.2s}
+    .dn:hover{border-color:var(--mid);color:var(--text)}
+    .dn.s{border-left:2px solid #6B9E78} .dn.st{border-left:2px solid #5B8DB8} .dn.i{border-left:2px solid #B8955B} .dn.m{border-left:2px solid var(--a)}
+    .dnsub{font-size:0.52rem;color:var(--muted);margin-top:0.12rem}
+    .dagarr{display:flex;align-items:center;padding-top:1.2rem;color:var(--border);font-size:0.9rem}
+    .code{background:#111;border:1px solid var(--border);overflow-x:auto;margin-bottom:1rem}
+    .code pre{font-family:var(--mono);font-size:0.7rem;line-height:1.75;color:#888;padding:1.1rem 1.4rem;white-space:pre}
+    .kw{color:#E85D26} .fn{color:#7BB8D4} .str{color:#7DAD6F} .cm{color:#444} .vr{color:#C4A96A} .nm{color:#B07FD4}
+    .chwrap{background:var(--surface);border:1px solid var(--border);padding:1.25rem;margin-bottom:1rem}
+    .chhd{margin-bottom:1rem}
+    .chttl{font-family:var(--serif);font-size:0.95rem;font-weight:400;color:var(--text)}
+    .chsrc{font-family:var(--mono);font-size:0.56rem;letter-spacing:0.08em;color:var(--muted);text-transform:uppercase;margin-top:0.2rem}
+    canvas{max-height:240px}
+    footer{padding:2.5rem 0;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border)}
+    .fmono{font-family:var(--mono);font-size:0.65rem;letter-spacing:0.08em;color:var(--muted)}
+    .flinks{display:flex;gap:1.75rem}
+    .flinks a{font-family:var(--mono);font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color 0.2s}
+    .flinks a:hover{color:var(--text)}
+    @media(max-width:780px){nav{padding:1rem 1.5rem}.pgrid{grid-template-columns:1fr}footer{flex-direction:column;gap:1rem}}
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-back" href="../../index.html">← Portfolio</a>
+  <div class="nav-id">06 / Homelessness</div>
+</nav>
+
+<section class="proj-header">
+  <div class="container">
+    <div class="ph-eyebrow">06 — Homelessness</div>
+    <h1 class="ph-title">Priced Out: Housing Cost<br>as the Engine of Homelessness</h1>
+    <div class="ptags">
+      <span class="ptag accent">Homelessness</span>
+      <span class="ptag">HUD PIT · Zillow · ACS</span>
+      <span class="ptag">Race x Geography</span>
+      <span class="ptag">dbt + Snowflake</span>
+    </div>
+  </div>
+</section>
+
+<section class="proj-body">
+  <div class="container">
+    <div class="pgrid">
+
+      <!-- LEFT -->
+      <div>
+        <div class="mb">
+          <div class="mlabel">What it is</div>
+          <div class="mval">HUD's annual Point-in-Time count measures unsheltered homelessness across 400+ Continuums of Care. Joined to Zillow rent data and ACS income estimates by metro, this project asks whether housing cost predicts homelessness rates. The correlation is among the strongest in social policy data. Black Americans are 5x overrepresented in the homeless population relative to their share of the general population.</div>
+        </div>
+
+        <div class="mb">
+          <div class="mlabel">Data Sources</div>
+          <div class="mval">
+            <a href="https://www.hudexchange.info/resource/3031/pit-and-hic-data-since-2007/" target="_blank">HUD PIT Count</a> — annual unsheltered counts by CoC<br>
+            <a href="https://www.zillow.com/research/data/" target="_blank">Zillow Research</a> — median rent by metro, 2007–2023<br>
+            <a href="https://www.census.gov/programs-surveys/acs" target="_blank">ACS 5-Year</a> — median income, poverty rate by CoC geography
+          </div>
+        </div>
+
+        <div class="srow">
+          <div class="sbox"><div class="sn">653k</div><div class="sl">Unsheltered (2023)</div></div>
+          <div class="sbox"><div class="sn">37%</div><div class="sl">Are Black Americans (13% of population)</div></div>
+          <div class="sbox"><div class="sn">0.81</div><div class="sl">Pearson r, rent vs. homeless rate</div></div>
+          <div class="sbox"><div class="sn">400+</div><div class="sl">CoCs Modeled</div></div>
+        </div>
+
+        <div class="action-box">
+          <div class="action-label">Policy Actions This Data Supports</div>
+          <ul class="action-items">
+            <li>Rank cities by homelessness-to-rent elasticity to prioritize where rental assistance funding produces the most reduction per dollar</li>
+            <li>Identify CoCs where racial overrepresentation is highest relative to local poverty rates, pointing to discrimination in shelter access rather than poverty alone</li>
+            <li>Model the unsheltered count reduction if fair market rents fell 10% in the 20 highest-cost metros</li>
+            <li>Make the quantitative case against criminalization post-Grants Pass by showing cities with bans have no better outcomes than those with housing-first approaches</li>
+          </ul>
+        </div>
+
+        <div class="dagwrap">
+          <div class="daglbl">// dbt model lineage</div>
+          <div class="dagflow">
+            <div class="dagcol">
+              <div class="dagcollbl c1lbl">Sources</div>
+              <div class="dn s">hud_pit</div>
+              <div class="dn s">zillow_rent</div>
+              <div class="dn s">acs_income</div>
+              <div class="dn s">hud_fmr</div>
+            </div>
+            <div class="dagarr">→</div>
+            <div class="dagcol">
+              <div class="dagcollbl c2lbl">Staging</div>
+              <div class="dn st">stg_pit_counts</div>
+              <div class="dn st">stg_zillow_rent</div>
+              <div class="dn st">stg_acs_income</div>
+            </div>
+            <div class="dagarr">→</div>
+            <div class="dagcol">
+              <div class="dagcollbl c3lbl">Int</div>
+              <div class="dn i">int_coc_metro_xwalk</div>
+              <div class="dn i">int_rent_burden_coc</div>
+            </div>
+            <div class="dagarr">→</div>
+            <div class="dagcol">
+              <div class="dagcollbl c4lbl">Marts</div>
+              <div class="dn m">fct_homelessness</div>
+              <div class="dn m">rpt_rent_elasticity</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT -->
+      <div>
+        <div class="chwrap">
+          <div class="chhd">
+            <div class="chttl">Rent vs. Homelessness Rate by Metro</div>
+            <div class="chsrc">rpt_rent_elasticity · HUD PIT + Zillow · 2023 · top 20 CoCs</div>
+          </div>
+          <canvas id="scatterChart"></canvas>
+        </div>
+
+        <div class="chwrap">
+          <div class="chhd">
+            <div class="chttl">Racial Composition: Homeless vs. General Population</div>
+            <div class="chsrc">fct_homelessness · HUD PIT 2023 · national totals</div>
+          </div>
+          <canvas id="raceChart"></canvas>
+        </div>
+
+        <div class="code">
+          <pre><span class="cm">-- int_rent_burden_coc.sql</span>
+<span class="kw">select</span>
+    p.<span class="vr">coc_number</span>, p.<span class="vr">coc_name</span>, p.<span class="vr">year</span>,
+    p.<span class="vr">total_homeless</span>, p.<span class="vr">unsheltered_homeless</span>,
+    p.<span class="vr">homeless_black_pct</span>, p.<span class="vr">total_population</span>,
+    <span class="fn">round</span>(p.<span class="vr">total_homeless</span> * <span class="nm">10000.0</span>
+        / <span class="fn">nullif</span>(p.<span class="vr">total_population</span>, <span class="nm">0</span>), 2) <span class="kw">as</span> homeless_rate_per_10k,
+    r.<span class="vr">median_rent_monthly</span>,
+    i.<span class="vr">median_hh_income</span>,
+    <span class="fn">round</span>((r.<span class="vr">median_rent_monthly</span> * <span class="nm">12</span>)
+        / <span class="fn">nullif</span>(i.<span class="vr">median_hh_income</span>, <span class="nm">0</span>) * <span class="nm">12</span>, 2) <span class="kw">as</span> rent_burden_months
+<span class="kw">from</span> {{ <span class="fn">ref</span>(<span class="str">'stg_pit_counts'</span>) }} p
+<span class="kw">left join</span> {{ <span class="fn">ref</span>(<span class="str">'int_coc_metro_xwalk'</span>) }} x <span class="kw">using</span> (coc_number)
+<span class="kw">left join</span> {{ <span class="fn">ref</span>(<span class="str">'stg_zillow_rent'</span>) }}  r <span class="kw">on</span> x.<span class="vr">metro_cbsa</span> = r.<span class="vr">cbsa_code</span> <span class="kw">and</span> p.<span class="vr">year</span> = r.<span class="vr">year</span>
+<span class="kw">left join</span> {{ <span class="fn">ref</span>(<span class="str">'stg_acs_income'</span>) }}  i <span class="kw">on</span> x.<span class="vr">metro_cbsa</span> = i.<span class="vr">cbsa_code</span> <span class="kw">and</span> p.<span class="vr">year</span> = i.<span class="vr">year</span></pre>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<div class="container">
+  <footer>
+    <div class="fmono">jordan · 2025</div>
+    <div class="flinks">
+      <a href="https://github.com/jordantannenbaum1" target="_blank">GitHub ↗</a>
+      <a href="https://linkedin.com/in/jtann" target="_blank">LinkedIn ↗</a>
+    </div>
+  </footer>
+</div>
+
+<script>
+  const G = { color: '#1E1E1E', drawBorder: false };
+  const T = { backgroundColor: '#161616', borderColor: '#2A2A2A', borderWidth: 1 };
+  Chart.defaults.font.family = 'IBM Plex Mono';
+  Chart.defaults.font.size = 10;
+  Chart.defaults.color = '#5A5A5A';
+
+  const metros = [
+    {city:'San Francisco',rent:3200,rate:91},{city:'Los Angeles',rent:2800,rate:74},
+    {city:'San Diego',rent:2900,rate:68},{city:'Seattle',rent:2200,rate:52},
+    {city:'New York',rent:2600,rate:44},{city:'Portland',rent:1900,rate:43},
+    {city:'Sacramento',rent:1950,rate:38},{city:'Washington DC',rent:2400,rate:35},
+    {city:'Miami',rent:2300,rate:31},{city:'Boston',rent:2100,rate:29},
+    {city:'Las Vegas',rent:1700,rate:28},{city:'Denver',rent:1850,rate:24},
+    {city:'Phoenix',rent:1650,rate:22},{city:'Chicago',rent:1700,rate:18},
+    {city:'Philadelphia',rent:1550,rate:15},{city:'Atlanta',rent:1600,rate:14},
+    {city:'Houston',rent:1400,rate:10},{city:'Dallas',rent:1450,rate:9},
+    {city:'Minneapolis',rent:1500,rate:12},{city:'Detroit',rent:950,rate:6}
+  ];
+  new Chart(document.getElementById('scatterChart'), {
+    type: 'scatter',
+    data: { datasets: [{ label: 'Metro', data: metros.map(m => ({x:m.rent,y:m.rate,label:m.city})), backgroundColor: '#4A7FB566', borderColor: '#4A7FB5', borderWidth: 1.5, pointRadius: 5, pointHoverRadius: 7 }] },
+    options: { responsive: true, plugins: { legend: { display: false }, tooltip: { ...T, callbacks: { label: c => [' ' + c.raw.label, ' Rent: $' + c.raw.x + '/mo', ' Homeless: ' + c.raw.y + ' per 10k'] } } }, scales: { x: { grid: G, border: { display: false }, title: { display: true, text: 'Median Monthly Rent ($)', color: '#5A5A5A', font: { size: 9 } }, ticks: { callback: v => '$' + v } }, y: { grid: G, border: { display: false }, title: { display: true, text: 'Homeless per 10k', color: '#5A5A5A', font: { size: 9 } } } } }
+  });
+
+  new Chart(document.getElementById('raceChart'), {
+    type: 'bar',
+    data: {
+      labels: ['White', 'Black', 'Hispanic', 'Native Am.', 'Asian', 'Multiracial'],
+      datasets: [
+        { label: '% of Homeless Pop.', data: [48, 37, 22, 6, 2, 9], backgroundColor: '#E85D2655', borderColor: '#E85D26', borderWidth: 1.5 },
+        { label: '% of General Pop.',  data: [59, 13, 19, 1, 6, 3], backgroundColor: '#4A7FB544', borderColor: '#4A7FB5', borderWidth: 1.5 }
+      ]
+    },
+    options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, padding: 14, color: '#888' } }, tooltip: { ...T, callbacks: { label: c => ' ' + c.raw + '%' } } }, scales: { x: { grid: { display: false }, border: { display: false } }, y: { grid: G, border: { display: false }, ticks: { callback: v => v + '%' } } } }
+  });
+</script>
+</body>
+</html>

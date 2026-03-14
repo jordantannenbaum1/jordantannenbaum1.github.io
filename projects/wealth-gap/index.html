@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>0.1% vs. the Bottom 50% — Jordan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@300;400;500&family=IBM+Plex+Sans:wght@300;400&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg:#0E0E0E; --surface:#161616; --border:#2A2A2A; --muted:#5A5A5A; --mid:#999; --text:#E8E4DC;
+      --a:#C4913A;
+      --serif:'Playfair Display',Georgia,serif; --mono:'IBM Plex Mono',monospace; --sans:'IBM Plex Sans',sans-serif;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{background:var(--bg);color:var(--text);font-family:var(--sans);font-weight:300;line-height:1.65;overflow-x:hidden}
+    ::-webkit-scrollbar{width:4px} ::-webkit-scrollbar-track{background:var(--bg)} ::-webkit-scrollbar-thumb{background:var(--border)}
+    nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:1.1rem 2.5rem;border-bottom:1px solid var(--border);background:rgba(14,14,14,0.95);backdrop-filter:blur(16px)}
+    .nav-back{font-family:var(--mono);font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color 0.2s}
+    .nav-back:hover{color:var(--text)}
+    .nav-id{font-family:var(--mono);font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted)}
+    .container{max-width:1020px;margin:0 auto;padding:0 2.5rem}
+    .proj-header{padding:8rem 0 3.5rem;border-bottom:1px solid var(--border)}
+    .ph-eyebrow{font-family:var(--mono);font-size:0.65rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--a);margin-bottom:1rem}
+    .ph-title{font-family:var(--serif);font-size:clamp(2rem,4vw,3.2rem);font-weight:400;line-height:1.1;margin-bottom:1.5rem}
+    .ptags{display:flex;gap:0.4rem;flex-wrap:wrap}
+    .ptag{font-family:var(--mono);font-size:0.58rem;letter-spacing:0.08em;text-transform:uppercase;padding:0.18rem 0.55rem;border:1px solid var(--border);color:var(--muted)}
+    .ptag.accent{border-color:var(--a);color:var(--a)}
+    .proj-body{padding:3rem 0 5rem}
+    .pgrid{display:grid;grid-template-columns:1fr 1.6fr;gap:2.5rem}
+    .mb{margin-bottom:1.5rem}
+    .mlabel{font-family:var(--mono);font-size:0.58rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin-bottom:0.4rem}
+    .mval{font-size:0.875rem;color:var(--mid);line-height:1.75}
+    .mval a{color:var(--a);text-decoration:none} .mval a:hover{text-decoration:underline}
+    .srow{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);margin-bottom:1.5rem}
+    .sbox{background:var(--surface);padding:0.9rem 1.1rem}
+    .sn{font-family:var(--serif);font-size:1.6rem;line-height:1;color:var(--text)}
+    .sl{font-family:var(--mono);font-size:0.56rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-top:0.2rem}
+    .action-box{border:1px solid var(--border);border-left:2px solid var(--a);background:var(--surface);padding:1.25rem 1.5rem;margin-bottom:1.5rem}
+    .action-label{font-family:var(--mono);font-size:0.58rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin-bottom:0.6rem}
+    .action-items{list-style:none}
+    .action-items li{font-size:0.85rem;color:var(--mid);line-height:1.7;padding-left:1rem;position:relative;margin-bottom:0.3rem}
+    .action-items li::before{content:'→';position:absolute;left:0;color:var(--muted);font-family:var(--mono);font-size:0.75rem}
+    .dagwrap{background:var(--surface);border:1px solid var(--border);padding:1.5rem;margin-bottom:1.5rem;overflow-x:auto}
+    .daglbl{font-family:var(--mono);font-size:0.58rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin-bottom:1.25rem}
+    .dagflow{display:flex;gap:1rem;align-items:flex-start;min-width:520px}
+    .dagcol{flex:1}
+    .dagcollbl{font-family:var(--mono);font-size:0.56rem;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:0.6rem;padding-bottom:0.3rem;border-bottom:1px solid var(--border)}
+    .c1lbl{color:#6B9E78} .c2lbl{color:#5B8DB8} .c3lbl{color:#B8955B} .c4lbl{color:var(--a)}
+    .dn{background:var(--bg);border:1px solid var(--border);padding:0.4rem 0.65rem;margin-bottom:0.35rem;font-family:var(--mono);font-size:0.6rem;color:var(--mid);cursor:default;transition:all 0.2s}
+    .dn:hover{border-color:var(--mid);color:var(--text)}
+    .dn.s{border-left:2px solid #6B9E78} .dn.st{border-left:2px solid #5B8DB8} .dn.i{border-left:2px solid #B8955B} .dn.m{border-left:2px solid var(--a)}
+    .dnsub{font-size:0.52rem;color:var(--muted);margin-top:0.12rem}
+    .dagarr{display:flex;align-items:center;padding-top:1.2rem;color:var(--border);font-size:0.9rem}
+    .code{background:#111;border:1px solid var(--border);overflow-x:auto;margin-bottom:1rem}
+    .code pre{font-family:var(--mono);font-size:0.7rem;line-height:1.75;color:#888;padding:1.1rem 1.4rem;white-space:pre}
+    .kw{color:#E85D26} .fn{color:#7BB8D4} .str{color:#7DAD6F} .cm{color:#444} .vr{color:#C4A96A} .nm{color:#B07FD4}
+    .chwrap{background:var(--surface);border:1px solid var(--border);padding:1.25rem;margin-bottom:1rem}
+    .chhd{margin-bottom:1rem}
+    .chttl{font-family:var(--serif);font-size:0.95rem;font-weight:400;color:var(--text)}
+    .chsrc{font-family:var(--mono);font-size:0.56rem;letter-spacing:0.08em;color:var(--muted);text-transform:uppercase;margin-top:0.2rem}
+    canvas{max-height:240px}
+    footer{padding:2.5rem 0;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border)}
+    .fmono{font-family:var(--mono);font-size:0.65rem;letter-spacing:0.08em;color:var(--muted)}
+    .flinks{display:flex;gap:1.75rem}
+    .flinks a{font-family:var(--mono);font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color 0.2s}
+    .flinks a:hover{color:var(--text)}
+    @media(max-width:780px){nav{padding:1rem 1.5rem}.pgrid{grid-template-columns:1fr}footer{flex-direction:column;gap:1rem}}
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-back" href="../../index.html">← Portfolio</a>
+  <div class="nav-id">05 / Wealth Inequality</div>
+</nav>
+
+<section class="proj-header">
+  <div class="container">
+    <div class="ph-eyebrow">05 — Wealth Inequality</div>
+    <h1 class="ph-title">0.1% vs. the Bottom 50%:<br>How America Split in Two</h1>
+    <div class="ptags">
+      <span class="ptag accent">Wealth Inequality</span>
+      <span class="ptag">Fed DFA · SCF</span>
+      <span class="ptag">Race x Gender</span>
+      <span class="ptag">dbt + Snowflake</span>
+    </div>
+  </div>
+</section>
+
+<section class="proj-body">
+  <div class="container">
+    <div class="pgrid">
+
+      <!-- LEFT -->
+      <div>
+        <div class="mb">
+          <div class="mlabel">What it is</div>
+          <div class="mval">The Federal Reserve tracks wealth distribution every quarter. Since 1989, the top 0.1% has gone from owning roughly the same share as the bottom 50% to owning more than ten times as much. This project models that trajectory longitudinally, then breaks the wealth gap open by race and gender using SCF microdata.</div>
+        </div>
+
+        <div class="mb">
+          <div class="mlabel">Data Sources</div>
+          <div class="mval">
+            <a href="https://www.federalreserve.gov/releases/z1/dataviz/dfa/" target="_blank">Fed Distributional Financial Accounts</a> — quarterly wealth shares<br>
+            <a href="https://www.federalreserve.gov/econres/scfindex.htm" target="_blank">Survey of Consumer Finances (SCF)</a> — race x gender x wealth<br>
+            IRS SOI — top income and capital gains data
+          </div>
+        </div>
+
+        <div class="srow">
+          <div class="sbox"><div class="sn">30%</div><div class="sl">Top 0.1% wealth share (2023)</div></div>
+          <div class="sbox"><div class="sn">2.6%</div><div class="sl">Bottom 50% wealth share (2023)</div></div>
+          <div class="sbox"><div class="sn">7.8x</div><div class="sl">White / Black median net worth gap</div></div>
+          <div class="sbox"><div class="sn">~$0</div><div class="sl">Median net worth, single Black women</div></div>
+        </div>
+
+        <div class="action-box">
+          <div class="action-label">Policy Actions This Data Supports</div>
+          <ul class="action-items">
+            <li>Model the revenue impact of a 2% annual wealth tax on holdings above $50M to fund child poverty reduction</li>
+            <li>Identify the specific asset classes (unrealized equity, real estate, inheritances) driving the racial wealth gap for targeted reform</li>
+            <li>Quantify how much of the gap is explained by inheritance vs. lifetime earnings to inform estate tax policy</li>
+            <li>Benchmark the US wealth gap against peer nations to contextualize where legislative intervention has worked</li>
+          </ul>
+        </div>
+
+        <div class="dagwrap">
+          <div class="daglbl">// dbt model lineage</div>
+          <div class="dagflow">
+            <div class="dagcol">
+              <div class="dagcollbl c1lbl">Sources</div>
+              <div class="dn s">fed_dfa</div>
+              <div class="dn s">scf_microdata</div>
+              <div class="dn s">irs_soi</div>
+            </div>
+            <div class="dagarr">→</div>
+            <div class="dagcol">
+              <div class="dagcollbl c2lbl">Staging</div>
+              <div class="dn st">stg_dfa_wealth</div>
+              <div class="dn st">stg_scf_respondents</div>
+              <div class="dn st">stg_irs_soi</div>
+            </div>
+            <div class="dagarr">→</div>
+            <div class="dagcol">
+              <div class="dagcollbl c3lbl">Int</div>
+              <div class="dn i">int_wealth_shares</div>
+              <div class="dn i">int_race_gender_nw</div>
+            </div>
+            <div class="dagarr">→</div>
+            <div class="dagcol">
+              <div class="dagcollbl c4lbl">Marts</div>
+              <div class="dn m">fct_wealth_dist</div>
+              <div class="dn m">rpt_wealth_by_demo</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT -->
+      <div>
+        <div class="chwrap">
+          <div class="chhd">
+            <div class="chttl">Wealth Share: Top 0.1% vs. Bottom 50% (1989–2023)</div>
+            <div class="chsrc">fct_wealth_dist · Fed DFA quarterly data</div>
+          </div>
+          <canvas id="wealthTimeChart"></canvas>
+        </div>
+
+        <div class="chwrap">
+          <div class="chhd">
+            <div class="chttl">Median Net Worth by Race and Gender</div>
+            <div class="chsrc">rpt_wealth_by_demo · SCF 2022 · weighted estimates</div>
+          </div>
+          <canvas id="wealthRaceChart"></canvas>
+        </div>
+
+        <div class="code">
+          <pre><span class="cm">-- int_wealth_shares.sql</span>
+<span class="kw">with</span> dfa <span class="kw">as</span> (
+    <span class="kw">select</span> * <span class="kw">from</span> {{ <span class="fn">ref</span>(<span class="str">'stg_dfa_wealth'</span>) }}
+),
+totals <span class="kw">as</span> (
+    <span class="kw">select</span>
+        quarter,
+        <span class="fn">sum</span>(net_worth_billions) <span class="kw">as</span> total_wealth,
+        <span class="fn">sum</span>(<span class="kw">case when</span> pctile_group = <span class="str">'top_0_1'</span>
+            <span class="kw">then</span> net_worth_billions <span class="kw">end</span>) <span class="kw">as</span> top_01_wealth,
+        <span class="fn">sum</span>(<span class="kw">case when</span> pctile_group = <span class="str">'bottom_50'</span>
+            <span class="kw">then</span> net_worth_billions <span class="kw">end</span>) <span class="kw">as</span> bottom_50_wealth
+    <span class="kw">from</span> dfa <span class="kw">group by</span> 1
+)
+<span class="kw">select</span>
+    quarter,
+    <span class="fn">round</span>(top_01_wealth    * <span class="nm">100.0</span> / total_wealth, 2) <span class="kw">as</span> top_01_pct,
+    <span class="fn">round</span>(bottom_50_wealth * <span class="nm">100.0</span> / total_wealth, 2) <span class="kw">as</span> bottom_50_pct,
+    <span class="fn">round</span>(top_01_wealth / <span class="fn">nullif</span>(bottom_50_wealth, <span class="nm">0</span>), 1) <span class="kw">as</span> ratio
+<span class="kw">from</span> totals <span class="kw">order by</span> 1</pre>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<div class="container">
+  <footer>
+    <div class="fmono">jordan · 2025</div>
+    <div class="flinks">
+      <a href="https://github.com/jordantannenbaum1" target="_blank">GitHub ↗</a>
+      <a href="https://linkedin.com/in/jtann" target="_blank">LinkedIn ↗</a>
+    </div>
+  </footer>
+</div>
+
+<script>
+  const G = { color: '#1E1E1E', drawBorder: false };
+  const T = { backgroundColor: '#161616', borderColor: '#2A2A2A', borderWidth: 1 };
+  Chart.defaults.font.family = 'IBM Plex Mono';
+  Chart.defaults.font.size = 10;
+  Chart.defaults.color = '#5A5A5A';
+
+  const yrs = [1989,1992,1995,1998,2001,2004,2007,2010,2013,2016,2019,2022,2023];
+  new Chart(document.getElementById('wealthTimeChart'), {
+    type: 'line',
+    data: {
+      labels: yrs,
+      datasets: [
+        { label: 'Top 0.1%',   data: [12.4,13.1,14.8,16.9,15.2,17.4,20.1,18.9,22.0,24.3,27.8,29.4,30.1], borderColor: '#C4913A', borderWidth: 2, pointRadius: 3, pointBackgroundColor: '#C4913A', tension: 0.4, fill: false },
+        { label: 'Bottom 50%', data: [3.1, 3.0, 2.8, 2.9, 2.7, 2.5, 2.3, 1.9, 1.7, 1.8, 2.1, 2.5, 2.6], borderColor: '#4A9E8E', borderWidth: 2, pointRadius: 3, pointBackgroundColor: '#4A9E8E', tension: 0.4, fill: false, borderDash: [4,3] }
+      ]
+    },
+    options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, padding: 14, color: '#888' } }, tooltip: { ...T, callbacks: { label: c => ' ' + c.raw + '% of total US wealth' } } }, scales: { x: { grid: { display: false }, border: { display: false } }, y: { grid: G, border: { display: false }, ticks: { callback: v => v + '%' } } } }
+  });
+
+  new Chart(document.getElementById('wealthRaceChart'), {
+    type: 'bar',
+    data: {
+      labels: ['White Men', 'White Women', 'Asian Men', 'Asian Women', 'Hispanic Men', 'Hispanic Women', 'Black Men', 'Black Women'],
+      datasets: [{ data: [189, 141, 98, 71, 38, 24, 26, 0.3], backgroundColor: ['#4A9E8E77','#4A9E8E44','#C4913A77','#C4913A44','#A78BCA77','#A78BCA44','#E85D2677','#E85D2622'], borderColor: ['#4A9E8E','#4A9E8E','#C4913A','#C4913A','#A78BCA','#A78BCA','#E85D26','#E85D26'], borderWidth: 1.5 }]
+    },
+    options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false }, tooltip: { ...T, callbacks: { label: c => ' $' + c.raw + 'k median net worth' } } }, scales: { x: { grid: G, border: { display: false }, ticks: { callback: v => '$' + v + 'k' } }, y: { grid: { display: false }, border: { display: false } } } }
+  });
+</script>
+</body>
+</html>

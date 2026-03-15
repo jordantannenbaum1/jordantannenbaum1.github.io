@@ -28,6 +28,7 @@
   .nav-right{display:flex;align-items:center;gap:2rem}
   .nav-right a{font-family:var(--mono);font-size:11px;color:var(--muted);text-decoration:none;letter-spacing:.08em;text-transform:uppercase;transition:color .2s}
   .nav-right a:hover{color:var(--cyan)}
+  .nav-right a.nav-active{color:var(--cyan)}
 
   /* HERO */
   .hero{min-height:100vh;display:flex;align-items:center;padding:100px 3rem 5rem;position:relative;overflow:hidden}
@@ -94,7 +95,43 @@
   footer a{color:var(--muted);text-decoration:none}
   footer a:hover{color:var(--cyan)}
 
-  @media(max-width:768px){.hero,.projects,.about{padding-left:1.5rem;padding-right:1.5rem}nav{padding:0 1.5rem}.hero-stat-row{gap:2rem}.projects-grid{grid-template-columns:1fr}footer{flex-direction:column;gap:.5rem;text-align:center}}
+  /* RESUME SECTION */
+  .resume-section{padding:5rem 3rem;border-top:1px solid var(--border)}
+  .resume-inner{max-width:1100px;margin:0 auto}
+  .resume-hd{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:3.5rem}
+  .resume-hd-right{font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:.12em;text-transform:uppercase}
+
+  /* Experience timeline */
+  .exp-list{display:flex;flex-direction:column;margin-bottom:4rem}
+  .exp-entry{padding:2.25rem 0;border-top:1px solid var(--border);display:grid;grid-template-columns:220px 1fr;gap:3.5rem;align-items:start}
+  .exp-entry:last-child{border-bottom:1px solid var(--border)}
+  .exp-left{}
+  .exp-company{font-family:var(--serif);font-size:1.35rem;font-weight:400;line-height:1.2;margin-bottom:.35rem}
+  .exp-role{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.3rem}
+  .exp-dates{font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:.06em}
+  .exp-badge{display:inline-block;font-family:var(--mono);font-size:9px;padding:2px 7px;border-radius:3px;letter-spacing:.06em;text-transform:uppercase;margin-top:.5rem;background:rgba(6,214,160,.1);color:var(--green);border:1px solid rgba(6,214,160,.2)}
+  .exp-desc{font-size:.9rem;color:var(--muted);line-height:1.8;margin-bottom:1rem;max-width:62ch}
+  .exp-bullets{list-style:none;display:flex;flex-direction:column;gap:.45rem}
+  .exp-bullets li{font-size:.865rem;color:var(--muted);line-height:1.65;padding-left:1.25rem;position:relative}
+  .exp-bullets li::before{content:'→';position:absolute;left:0;color:var(--dim);font-family:var(--mono);font-size:.75rem;top:.05em}
+
+  /* Skills + Education row */
+  .resume-bottom{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:start}
+  .resume-sublabel{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin-bottom:1.25rem}
+  .skills-grid{display:flex;flex-wrap:wrap;gap:.5rem}
+  .skill-chip{font-family:var(--mono);font-size:10px;padding:4px 10px;border:1px solid var(--border2);color:var(--muted);letter-spacing:.06em;border-radius:4px;transition:border-color .2s,color .2s}
+  .skill-chip:hover{border-color:var(--cyan);color:var(--cyan)}
+  .skill-chip.hi{border-color:rgba(0,212,255,.3);color:var(--cyan);background:rgba(0,212,255,.05)}
+  .edu-entry{margin-bottom:2rem}
+  .edu-school{font-family:var(--serif);font-size:1.15rem;color:var(--text);margin-bottom:.25rem}
+  .edu-degree{font-size:.875rem;color:var(--muted);line-height:1.65;margin-bottom:.25rem}
+  .edu-note{font-family:var(--mono);font-size:10px;color:var(--yellow);letter-spacing:.06em}
+  .cert-list{display:flex;flex-direction:column;gap:0}
+  .cert-item{font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:.05em;padding:.55rem 0;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.6rem}
+  .cert-item::before{content:'◆';font-size:.45rem;color:var(--dim);flex-shrink:0}
+  .cert-item:last-child{border-bottom:none}
+
+  @media(max-width:768px){.hero,.projects,.about,.resume-section{padding-left:1.5rem;padding-right:1.5rem}nav{padding:0 1.5rem}.hero-stat-row{gap:2rem}.projects-grid{grid-template-columns:1fr}footer{flex-direction:column;gap:.5rem;text-align:center}.exp-entry{grid-template-columns:1fr;gap:1.25rem}.resume-bottom{grid-template-columns:1fr;gap:3rem}}
 </style>
 </head>
 <body>
@@ -103,6 +140,7 @@
   <a class="nav-logo" href="#">// jordan.data</a>
   <div class="nav-right">
     <a href="#projects">Projects</a>
+    <a href="#resume">Experience</a>
     <a href="#about">About</a>
     <a href="https://github.com/jordantannenbaum1/jordan-data-projects" target="_blank">GitHub</a>
   </div>
@@ -327,6 +365,135 @@
         <span class="card-arrow">→</span>
       </div>
     </a>
+
+  </div>
+</div>
+
+<div id="resume" class="resume-section">
+  <div class="resume-inner">
+
+    <div class="resume-hd">
+      <span class="section-label">Experience</span>
+      <span class="resume-hd-right">6+ years · 4 organizations</span>
+    </div>
+
+    <div class="exp-list">
+
+      <!-- NSLS -->
+      <div class="exp-entry">
+        <div class="exp-left">
+          <div class="exp-company" style="color:var(--cyan)">NSLS</div>
+          <div class="exp-role" style="color:var(--cyan)">Head of Data</div>
+          <div class="exp-dates">Dec 2025 – Present</div>
+          <div class="exp-badge">Current</div>
+        </div>
+        <div class="exp-right">
+          <p class="exp-desc">Leading data strategy, infrastructure, and analytics across one of the largest collegiate honor societies in the country — 800+ university chapters, hundreds of thousands of student members.</p>
+          <ul class="exp-bullets">
+            <li>Building the organization's modern data stack on Snowflake, dbt Cloud, and Hex</li>
+            <li>Designing the semantic layer and metric definitions for membership, engagement, and retention reporting</li>
+            <li>Partnering with leadership to replace ad hoc reporting with forward-looking, decision-ready dashboards</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- GOODRX -->
+      <div class="exp-entry">
+        <div class="exp-left">
+          <div class="exp-company" style="color:var(--green)">GoodRx</div>
+          <div class="exp-role" style="color:var(--green)">Lead Analytics Engineer</div>
+          <div class="exp-dates">Jul 2021 – Dec 2025</div>
+        </div>
+        <div class="exp-right">
+          <p class="exp-desc">Analytics engineering lead on a ~500TB scale data platform, owning the transformation layer for revenue, product, and marketing intelligence across newly launched subscription lines.</p>
+          <ul class="exp-bullets">
+            <li>Architect and owner of the Subscriptions Data Mart powering revenue, retention, and product reporting — reduced analyst manual work by hundreds of hours per month</li>
+            <li>Designed the Segment &amp; GA4 Data Mart unifying 60+ event sources into Bronze/Silver/Gold Delta models; improved data freshness SLAs from 7 days to 24 hours, hourly for critical datasets</li>
+            <li>Ingested and deserialized raw Kafka topics into Databricks and Redshift, consumed by analytics and ML teams</li>
+            <li>Led data and software engineering squads; managed analytics engineering staff</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- REPRESENTUS -->
+      <div class="exp-entry">
+        <div class="exp-left">
+          <div class="exp-company" style="color:var(--purple)">RepresentUs</div>
+          <div class="exp-role" style="color:var(--purple)">Data Director</div>
+          <div class="exp-dates">Jan 2020 – Jul 2021</div>
+        </div>
+        <div class="exp-right">
+          <p class="exp-desc">First dedicated data leader at a national anti-corruption nonprofit. Built the organization's data strategy, infrastructure, and reporting capability from the ground up.</p>
+          <ul class="exp-bullets">
+            <li>Built the first unified data stack; consolidated six disparate data sources into a single C-suite dashboard</li>
+            <li>Migrated four legacy CRM, fundraising, and volunteer outreach systems into one platform used by HQ and thousands of volunteers nationwide</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- ASPIRATION -->
+      <div class="exp-entry">
+        <div class="exp-left">
+          <div class="exp-company" style="color:var(--yellow)">Aspiration</div>
+          <div class="exp-role" style="color:var(--yellow)">Sr. Data Analyst</div>
+          <div class="exp-dates">Jul 2018 – Jan 2020</div>
+        </div>
+        <div class="exp-right">
+          <p class="exp-desc">Primary analyst dedicated to the C-suite at a mission-driven fintech startup focused on sustainable banking. Led cross-functional business reviews and built the self-serve analytics layer.</p>
+          <ul class="exp-bullets">
+            <li>Led monthly business reviews across all departments; built enterprise-level dashboards for executive reporting</li>
+            <li>Owned LookML models enabling product and marketing teams to self-serve KPIs and behavioral analytics</li>
+            <li>Joined client-side and server-side data via the Customer Data Platform to enhance BI reporting</li>
+          </ul>
+        </div>
+      </div>
+
+    </div><!-- /exp-list -->
+
+    <div class="resume-bottom">
+
+      <div>
+        <div class="resume-sublabel">Skills &amp; Stack</div>
+        <div class="skills-grid">
+          <span class="skill-chip hi">dbt</span>
+          <span class="skill-chip hi">Snowflake</span>
+          <span class="skill-chip hi">SQL / Jinja SQL</span>
+          <span class="skill-chip hi">Python</span>
+          <span class="skill-chip hi">Databricks</span>
+          <span class="skill-chip">PySpark</span>
+          <span class="skill-chip">Iceberg / UniForm</span>
+          <span class="skill-chip">Redshift</span>
+          <span class="skill-chip">BigQuery</span>
+          <span class="skill-chip">Airflow / ETL</span>
+          <span class="skill-chip">Looker / LookML</span>
+          <span class="skill-chip">GA4 / Segment</span>
+          <span class="skill-chip">Kafka</span>
+          <span class="skill-chip">Data modeling</span>
+          <span class="skill-chip">Metric design</span>
+          <span class="skill-chip">Cross-functional leadership</span>
+          <span class="skill-chip">D3.js</span>
+          <span class="skill-chip">Hex</span>
+        </div>
+      </div>
+
+      <div>
+        <div class="resume-sublabel">Education</div>
+        <div class="edu-entry">
+          <div class="edu-school">University of Pennsylvania</div>
+          <div class="edu-degree">BA Honors Economics · Philadelphia</div>
+          <div class="edu-note">Graduated Magna Cum Laude</div>
+        </div>
+
+        <div class="resume-sublabel" style="margin-top:2rem">Certifications</div>
+        <div class="cert-list">
+          <div class="cert-item">Advanced LookML</div>
+          <div class="cert-item">Databricks</div>
+          <div class="cert-item">dbt Fundamentals</div>
+          <div class="cert-item">Google Analytics Qualifying</div>
+        </div>
+      </div>
+
+    </div><!-- /resume-bottom -->
 
   </div>
 </div>
